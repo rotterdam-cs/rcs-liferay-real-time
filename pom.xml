@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.rcs</groupId>
+    <artifactId>liferaysense</artifactId>
+    <name>liferaysense</name>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <!-- dependencies for all modules -->
+    <dependencies>
+        <!-- LIFERAY -->
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-service</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>util-bridges</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>util-taglib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>util-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- LOGGING -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+       <dependency>
+            <groupId>com.rcs</groupId>
+            <artifactId>rcsUtilitiesLib</artifactId>
+        </dependency>
+    </dependencies>
+    
+    <!-- dependency management not directly inherited --> 
+    <dependencyManagement>
+        <dependencies>
+        <!-- LIFERAY -->
+            <dependency>
+                <groupId>com.liferay.portal</groupId>
+                <artifactId>portal-service</artifactId>
+                <version>${liferay.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.liferay.portal</groupId>
+                <artifactId>util-bridges</artifactId>
+                <version>${liferay.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.liferay.portal</groupId>
+                <artifactId>util-taglib</artifactId>
+                <version>${liferay.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.liferay.portal</groupId>
+                <artifactId>util-java</artifactId>
+                <version>${liferay.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>${jstl.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+        <!-- LOGGING -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+        <!-- SPRING -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-asm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc-portlet</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+        <!-- HIBERNATE -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-c3p0</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-ehcache</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernatevalidator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${javainject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>${javamail.version}</version>
+            </dependency>
+        <!-- COMMONS -->
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commonslang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rcs</groupId>
+                <artifactId>rcsUtilitiesLib</artifactId>
+                <version>${rcsUtilitiesLib.version}</version>
+            </dependency>
+        <!-- TESTING -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!--jDTO-->
+            <dependency>
+                <groupId>org.jdto</groupId>
+                <artifactId>jdto</artifactId>
+                <version>${jdto.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <!-- version of libraries -->
+    <properties>
+     
+        <!-- common libraries -->
+        <commonslang.version>2.6</commonslang.version>
+        <liferay.version>6.1.0</liferay.version>
+        <hibernate.version>3.6.7.Final</hibernate.version>
+        <hibernatevalidator.version>4.2.0.Final</hibernatevalidator.version>
+        <javainject.version>1</javainject.version>
+        <javamail.version>1.4</javamail.version>
+        <javassist.version>3.12.1.GA</javassist.version>
+        <jstl.version>1.2</jstl.version>
+        <junit.version>4.8.2</junit.version>
+        <log4j.version>1.2.16</log4j.version>
+        <slf4j.version>1.6.2</slf4j.version>
+        <spring.version>3.0.6.RELEASE</spring.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <rcsUtilitiesLib.version>1.0-SNAPSHOT</rcsUtilitiesLib.version>
+        <jdto.version>1.0-RC</jdto.version>
+    </properties>
+    
+    
+    <!-- where to find hibernate -->
+    <repositories>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Maven Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+            <layout>default</layout>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+    
+    <!-- Where to deploy artifacts -->
+    <!-- please don't uncomment this unless you have good reasons for it.
+    this is only for adding libraries to our rottedam cs maven repository.
+    <distributionManagement>
+        <repository>
+            <id>Rotterdam-CS</id>
+            <name>Rotterdam CS Internal</name>
+            <url>scp://jupiter/home/maven</url>
+        </repository>
+    </distributionManagement>
+    -->
+  <modules>
+    <module>Backend</module>
+    <module>Layout</module>
+    <module>Portlet</module>
+    <module>Theme</module>
+    <module>Hook</module>
+  </modules>
+</project>
