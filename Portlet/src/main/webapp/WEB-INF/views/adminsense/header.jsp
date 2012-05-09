@@ -18,9 +18,8 @@
         <a data-toggle="modal" href="#<portlet:namespace/>helpWindow"><i class="icon-question-sign"></i></a> 
     </span> 
     <h1 class="header-title">
-        <span>
-            <span class="hidden" id="<portlet:namespace/>sense-admin-menu-account"><i class="icon-lock"></i> <fmt:message key="com.rcs.sense.admin.account"/></span>
-            <span class="hidden" id="<portlet:namespace/>sense-admin-menu-analytics"><i class="-th-list"></i> <fmt:message key="com.rcs.sense.admin.analytics"/></span>
+        <span>            
+            <span class="hidden" id="<portlet:namespace/>sense-admin-menu-analytics"><i class="icon-th-list"></i> <fmt:message key="com.rcs.sense.admin.analytics"/></span>
             <span class="hidden" id="<portlet:namespace/>sense-admin-menu-general-settings"><i class="icon-share"></i> <fmt:message key="com.rcs.sense.admin.global.settings"/></span>
         </span>
     </h1> 

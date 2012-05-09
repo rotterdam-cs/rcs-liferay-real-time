@@ -1,5 +1,6 @@
 package com.rcs.liferaysense.service.commonsense;
 
+import antlr.StringUtils;
 import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.google.gson.Gson;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
@@ -38,6 +39,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
     private static final String CREATE_USER_ENDPOINT = "users.json?user[username]={username}&user[password]={password}&user[email]={email}&user[name]={name}&user[surname]={surname}&user[mobile]={mobile}";
     private static final String CURRENT_USERINFO_ENDPOINT = "users/current?session_id={sessionId}";
     private static final String LOG_LIFERAY_SENSOR_DATA_ENDPOINT = "sensors/{sensorId}/data?data[value]={value}&session_id={sessionId}";    
+    private static final String CREATE_SENSOR_ENDPOINT = "sensors?sensor[name]={name}&sensor[display_name]={display_name}&sensor[data_type]={data_type}&sensor[device_type]={device_type}&sensor[type]={type}&sensor[data_structure]={data_structure}&session_id={sessionId}";
     private static final String USERS_FOR_SENSOR_ENDPOINT = "sensors/{sensorId}/users?session_id={sessionId}";
     private static final String TRIGGERS_ENDPOINT = "sensors/{sensorId}/triggers/{triggerId}?session_id={sessionId}";
     private static final String SENSORS_ENDPOINT = "sensors?page=0&details=full&session_id={sessionId}";
@@ -254,6 +256,85 @@ class CommonSenseServiceImpl implements CommonSenseService {
         return result;
     }
 
+    /**
+     * 
+     * @param commonSenseSensorData
+     * @return 
+     */
+    @Override
+    public LocalResponse createSensor(CommonSenseSession session, CommonSenseSensorData commonSenseSensorData) {
+        Set<ConstraintViolation<CommonSenseSensorData>> violations = validator.validate(commonSenseSensorData);
+        
+        LocalResponse result = new LocalResponse();
+        
+        if (!violations.isEmpty()) {
+            return result;
+        }
+        
+        Map<String, String> callParams = buildSessionParameters(session);
+        callParams.put("name", commonSenseSensorData.getName());
+        callParams.put("display_name", commonSenseSensorData.getDisplay_name());
+        callParams.put("data_type", commonSenseSensorData.getData_type());
+        callParams.put("device_type", commonSenseSensorData.getDevice_type());
+        callParams.put("type", commonSenseSensorData.getType());
+        callParams.put("data_structure", commonSenseSensorData.getData_structure());
+        try {
+            ResponseEntity<String> entity = template.postForEntity(SERVICE_URL + CREATE_SENSOR_ENDPOINT, null, String.class, callParams);            
+            HttpStatus code = entity.getStatusCode();
+            result.setResponseCode(code.value());
+            result.setBody(entity.getBody());
+            
+            if (code != HttpStatus.CREATED) {                
+                ResponseErrorMessage responseErrorMessage = CommonSenseObjectMapper.mapMessage(entity.getBody());
+                result.setMessage(responseErrorMessage.getError());
+                logger.warn("Could not create sensor on the common sense service");
+            } else {
+                result.setSuccess(true);
+            }
+        
+        //todo-remove this when the header issue is fixed.
+        } catch (IllegalArgumentException ex) {
+            logger.error("Illegal argument while calling the web service", ex);
+        }
+        return result;
+    }
+    
+    /**
+     * 
+     * @param session
+     * @return 
+     */
+    @Override
+    public List<Sensor> listSensors(CommonSenseSession session) {
+        //build the parameters
+        Map<String, String> parameters = buildSessionParameters(session);
+        //query the service
+        String result = template.getForObject(SERVICE_URL + SENSORS_ENDPOINT, String.class, parameters);
+
+        //return the list of sensors.
+        List<Sensor> sensorsFromServerForUser = CommonSenseObjectMapper.mapSensorsList(result);
+        
+        return sensorsFromServerForUser;
+    }
+    
+    /**
+     * 
+     * @param session
+     * @param device_type
+     * @return 
+     */
+    @Override
+    public List<Sensor> listSensors(CommonSenseSession session, String device_type) {        
+        List<Sensor> allsensors = listSensors(session);
+        List<Sensor> sensorsFromServerForUser = new LinkedList<Sensor>();
+        for (Sensor sensor : allsensors) {
+            if (device_type.equals(sensor.getDevice_type())) {
+                sensorsFromServerForUser.add(sensor);
+            }
+        }        
+        return sensorsFromServerForUser;
+    }
+    
     /**
      * 
      * @param session

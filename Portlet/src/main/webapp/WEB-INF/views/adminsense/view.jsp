@@ -13,11 +13,8 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
 <portlet:resourceURL var="senseAdminSectionsURL" id="senseAdminSections" />
-<portlet:resourceURL var="checkSenseLoggedInURL" id="checkSenseLoggedIn" />
 
 <%@include file="header.jsp" %>
-
-<div id="<portlet:namespace/>logged-container" class="logged-container"></div>
 
 <div class="container-fluid">
     <div class="row-fluid admin-mask" id="<portlet:namespace/>administration-container-mask">
@@ -32,18 +29,14 @@
 </div>
      
 <script type="text/javascript">
-    
-    function UpdateSenseLoginStatus (){
-        jQuery("#<portlet:namespace/>logged-container").load("${checkSenseLoggedInURL}");
-    }
-            
     Liferay.on('portletReady', function(event) {            
         if('_' + event.portletId + '_' == '<portlet:namespace/>') {            
-            
+            <%--//Is very important to load this at the very begining of the javascript--%>
+            google.load("visualization", "1");
+    
             <%--//Load the first section (Account)--%>
             jQuery(function () {
                 jQuery('a[data-toggle="tab"]:first').tab('show');
-                UpdateSenseLoginStatus();
             });
             
             <%--//Actions to perform when change section --%>
@@ -62,8 +55,7 @@
                         jQuery("#<portlet:namespace/>administration-container-mask").unmask();
                     }
                 );
-            });  
-            
+            });            
             
         }
     });

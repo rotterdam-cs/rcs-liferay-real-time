@@ -70,16 +70,16 @@ function onrangechange() {
 function onrangechangeddelayed() {   
    var newStartDate = new Date(startTime);
    var newEndDate   = new Date(endTime);
-   jQuery("#<portlet:namespace/>mynetworkcontainer").load("${getAnalyticsRangeURL}"
-        ,{
-            "startTime" : newStartDate.getTime()
-            ,"endTime" : newEndDate.getTime()
-        }
-        ,function() {            
-            jQuery("#<portlet:namespace/>mynetworkcontainer").unmask();
-            loading = false;
-        }
-    );
+//   jQuery("#<portlet:namespace/>mynetworkcontainer").load("${getAnalyticsRangeURL}"
+//        ,{
+//            "startTime" : newStartDate.getTime()
+//            ,"endTime" : newEndDate.getTime()
+//        }
+//        ,function() {            
+//            jQuery("#<portlet:namespace/>mynetworkcontainer").unmask();
+//            loading = false;
+//        }
+//    );
 }
 function onrangechanged() {    
     if (!loading) {

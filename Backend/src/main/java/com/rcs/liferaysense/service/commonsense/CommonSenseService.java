@@ -3,6 +3,7 @@ package com.rcs.liferaysense.service.commonsense;
 import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Implements common sense API calls.
@@ -57,6 +58,33 @@ public interface CommonSenseService {
      */    
     LocalResponse createUser(CommonSenseUserData data);
 
+    
+    /**
+     * 
+     * @param commonSenseSensorData
+     * @return 
+     */
+    LocalResponse createSensor(CommonSenseSession session, CommonSenseSensorData commonSenseSensorData);
+
+    
+    /**
+     * Get a list of sensors by calling the /sensors API call.
+     * The returned result will contain a list with the relevant data and 
+     * the order will be the same as the service returns.
+     * @return 
+     */
+    List<Sensor> listSensors(CommonSenseSession session);
+    
+    /**
+     * Filter the common sense sensors by participant email. Useful when you want
+     * to get only the sensors for a single participant.
+     * @param session
+     * @param participantEmail
+     * @return 
+     */
+    List<Sensor> listSensors(CommonSenseSession session, String device_type);
+    
+    
     
     /**
      * Get the users registered for a given sensor. This performs a lookup on

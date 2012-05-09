@@ -23,6 +23,9 @@
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings1"/></p>
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings2"/></p>        
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings3"/></p>
+        <p></p>
+        <p></p>
+        <p><fmt:message key="com.rcs.sense.admin.help.global.settings4"/></p>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal"><fmt:message key="com.rcs.sense.general.close"/></a>
@@ -30,6 +33,7 @@
 </div>
 
 <form class="well" id="<portlet:namespace/>senseglobalsettingsform">    
+    <%--
     <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER%>" class="checkbox"></label>
         <input type="checkbox" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER%>" <c:if test="${auto_register == true}" >checked="checked"</c:if> id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER%>"> <fmt:message key="com.rcs.sense.admin.global.settings.auto.register"/>
@@ -38,7 +42,7 @@
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT%>" class="checkbox"></label>
         <input type="checkbox" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT%>" <c:if test="${allow_change_account == true}" >checked="checked"</c:if> <c:if test="${auto_register == true}" >disabled="disabled"</c:if> id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT%>"> <fmt:message key="com.rcs.sense.admin.global.settings.allow.change.user"/>
     </p>
-    
+    --%>
     <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>"><fmt:message key="com.rcs.sense.general.default.username"/>:</label>
         <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>" class="required span3" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>" value="${default_sense_username}" />
@@ -49,6 +53,11 @@
         <input type="password" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" class="required span3" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" value="${default_sense_pass}" />
     </p>
     
+    <p>
+        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>"><fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>:</label>
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" class="span2" readonly="true" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" value="${default_sense_liferaysensordata_id}" />
+    </p>
+     
     <p>
         <button type="button" class="btn" id="<portlet:namespace/>global-settings-button-save"><fmt:message key="com.rcs.sense.general.save"/></button>        
     </p>

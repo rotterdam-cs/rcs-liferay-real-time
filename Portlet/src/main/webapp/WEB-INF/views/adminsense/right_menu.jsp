@@ -19,20 +19,13 @@
 <div style="clear: both;"></div>
 
 <ul class="nav nav-list">                    
-    <li>
-        <a href="#<%=Constants.ADMIN_SECTION_ACCOUNT%>" data-toggle="tab" rel="sense-admin-menu-account">
-            <i class="icon-lock"></i><fmt:message key="com.rcs.sense.admin.account"/>
-        </a>
-    </li>
-    
-    <li <c:if test="${senseUserRegistered == false}" >class="disabled"</c:if>>
-        <a href="#<%=Constants.ADMIN_SECTION_ANALYTICS%>" data-toggle="tab" rel="sense-admin-menu-analytics">
-            <i class="icon-th-list"></i><fmt:message key="com.rcs.sense.admin.analytics"/>                            
-        </a>
-    </li>
-    
     <c:if test="${isSenseAdmin == true}" >
-        <li class="divider"></li>    
+        <li class="divider"></li>
+        <li>
+            <a href="#<%=Constants.ADMIN_SECTION_ANALYTICS%>" data-toggle="tab" rel="sense-admin-menu-analytics">
+                <i class="icon-th-list"></i><fmt:message key="com.rcs.sense.admin.analytics"/>                            
+            </a>
+        </li>
         <li>
             <a href="#<%=Constants.ADMIN_SECTION_GLOBAL_SETTINGS%>" data-toggle="tab" rel="sense-admin-menu-general-settings">
                 <i class="icon-share"></i><fmt:message key="com.rcs.sense.admin.global.settings"/>                           

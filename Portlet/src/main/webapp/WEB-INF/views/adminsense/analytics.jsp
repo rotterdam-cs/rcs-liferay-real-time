@@ -12,12 +12,59 @@
 
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
- 
-Analytics
+<portlet:resourceURL var="getAnalyticsBigRangeURL" id="getAnalyticsBigRange" /> 
+
+<div class="modal hide fade" id="<portlet:namespace/>helpWindow">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">x</a>
+        <h3><i class="icon-question-sign"></i> <fmt:message key="com.rcs.sense.admin.help.center"/> - <fmt:message key="com.rcs.sense.admin.global.settings"/> <span style="float: right;"><img src="/${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px"></span></h3>
+    </div>
+    <div class="modal-body">
+        <p><fmt:message key="com.rcs.sense.admin.help.analytics.settings1"/></p>
+        <p><fmt:message key="com.rcs.sense.admin.help.analytics.settings2"/></p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal"><fmt:message key="com.rcs.sense.general.close"/></a>
+    </div>
+</div>
+    
+    
+<div class="controls">
+    <label class="radio">
+        <input type="radio" name="<portlet:namespace/>range" value="1" checked>
+        View last month report
+    </label>
+    <label class="radio">
+        <input type="radio" name="<portlet:namespace/>range" value="2">
+        View last week report
+    </label>
+    <label class="radio">
+        <input type="radio" name="<portlet:namespace/>range" value="3">
+        View last day report
+    </label>
+</div>
+
+<p></p>
+<div id="<portlet:namespace/>containermask" style="width: 650px;">
+    <div id="<portlet:namespace/>mytimelinecontainer"></div>
+    <div id="<portlet:namespace/>mynetworkcontainer"></div>
+</div>
 
 <script type="text/javascript">
-    jQuery(function() {    
-    
-    
-    });  
+    function getTimeline(){
+        jQuery("#<portlet:namespace/>containermask").mask('<fmt:message key="com.rcs.sense.general.mask.loading.text"/>');
+        jQuery("#<portlet:namespace/>mytimelinecontainer").load("${getAnalyticsBigRangeURL}"
+            ,{
+                "range" : jQuery('input:radio[name=<portlet:namespace/>range]:checked').val()
+            }
+            ,function() {            
+                jQuery("#<portlet:namespace/>containermask").unmask();
+            }
+        );
+    }
+
+    jQuery(function () {
+        getTimeline();
+        jQuery('input:radio[name=<portlet:namespace/>range]').on("change", function(){ getTimeline(); });
+    });
 </script>
