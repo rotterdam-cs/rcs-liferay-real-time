@@ -16,7 +16,14 @@
     
     <!-- look for service classes -->
     <context:component-scan base-package="com.rcs.service" />
+    <context:component-scan base-package="com.rcs.liferaysense.service.commonsense" />
+    <context:component-scan base-package="com.rcs.liferaysense.service.local" />
+    <context:component-scan base-package="com.rcs.liferaysense.portlet.common" />
+    
         
+    <!-- get access to the rest webservice -->
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+      
       
     <!-- configure the usage of hibernate validator -->
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
@@ -33,10 +40,12 @@
     <!-- prefixes and suffixes for the view resolver -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
-        <property name="prefix" value="/views/" />
+        <property name="prefix" value="/WEB-INF/views/" />
         <property name="suffix" value=".jsp" />
     </bean>
     
+    <!-- define in this file all the liferay beans -->
+    <import resource="liferaybeans.xml" />
    
     <!-- project properties file -->
     <context:property-placeholder location="classpath:config.properties" />

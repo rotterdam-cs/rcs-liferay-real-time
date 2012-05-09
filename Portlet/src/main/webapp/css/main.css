@@ -1,0 +1,25 @@
+.sense-logo {
+    float: right;
+    border: 1px solid #88C5D9;
+}
+
+.sense-admin-right-menu {
+    float: right!important;
+}
+
+.sense-admin-left-container {
+    margin-top: 30px;
+}
+
+.sense-admin-left-container form p {
+    margin-bottom: 20px;
+}
+.logged-container {
+    text-align: center;
+}
+.logged-container-front {
+    text-align: right;
+}
+.admin-mask {
+    min-height: 600px;
+}

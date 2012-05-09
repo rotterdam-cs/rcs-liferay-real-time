@@ -2,20 +2,43 @@
 <!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application 6.1.0//EN" "http://www.liferay.com/dtd/liferay-portlet-app_6_1_0.dtd">
 
 <liferay-portlet-app>
-	<role-mapper>
-		<role-name>administrator</role-name>
-		<role-link>Administrator</role-link>
-	</role-mapper>
-	<role-mapper>
-		<role-name>guest</role-name>
-		<role-link>Guest</role-link>
-	</role-mapper>
-	<role-mapper>
-		<role-name>power-user</role-name>
-		<role-link>Power User</role-link>
-	</role-mapper>
-	<role-mapper>
-		<role-name>user</role-name>
-		<role-link>User</role-link>
-	</role-mapper>
+    <portlet>
+        <portlet-name>AdminSensePortlet</portlet-name>
+        <icon>/icon.png</icon>
+        <control-panel-entry-category>content</control-panel-entry-category>            
+        <control-panel-entry-weight>1</control-panel-entry-weight>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/js/jquery-validation-1.9.0/demo/css/screen.css</header-portlet-css>
+        <header-portlet-css>/js/bootstrap/css/bootstrap.css</header-portlet-css>
+        <header-portlet-css>/js/bootstrap/css/bootstrap-responsive.css</header-portlet-css>
+        <header-portlet-css>/js/jquery-loadmask/jquery.loadmask.css</header-portlet-css>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-css>/js/jquery-ui-1.8.16.custom-redmond/css/redmond/jquery-ui-1.8.16.custom.css</header-portlet-css>
+        <header-portlet-javascript>/js/jquery/jquery-1.7.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/bootstrap/js/bootstrap.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/jquery-loadmask/jquery.loadmask.min.js</header-portlet-javascript>        
+        <footer-portlet-javascript>/js/jquery-validation-1.9.0/jquery.validate.min.js</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/jquery-validation-1.9.0/localization/messageslocale.jsp</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/jquery.form/jquery.form.js</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/responseHandler.js</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/jquery-ui-1.8.16.custom-redmond/js/jquery-ui-1.8.16.custom.min.js</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/jquery-ui-1.8.16.custom-redmond/development-bundle/ui/i18n/jquery.ui.datepickerlocale.jsp</footer-portlet-javascript>     
+    </portlet>
+    
+    <role-mapper>
+            <role-name>administrator</role-name>
+            <role-link>Administrator</role-link>
+    </role-mapper>
+    <role-mapper>
+            <role-name>guest</role-name>
+            <role-link>Guest</role-link>
+    </role-mapper>
+    <role-mapper>
+            <role-name>power-user</role-name>
+            <role-link>Power User</role-link>
+    </role-mapper>
+    <role-mapper>
+            <role-name>user</role-name>
+            <role-link>User</role-link>
+    </role-mapper>
 </liferay-portlet-app>

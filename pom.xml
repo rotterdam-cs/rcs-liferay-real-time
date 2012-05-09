@@ -195,6 +195,11 @@
                 <artifactId>jdto</artifactId>
                 <version>${jdto.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- version of libraries -->
@@ -216,6 +221,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rcsUtilitiesLib.version>1.0-SNAPSHOT</rcsUtilitiesLib.version>
         <jdto.version>1.0-RC</jdto.version>
+        <gson.version>1.7.1</gson.version>
     </properties>
     
     
@@ -252,5 +258,6 @@
     <module>Portlet</module>
     <module>Theme</module>
     <module>Hook</module>
+    <module>UpgradeProcess</module>
   </modules>
 </project>

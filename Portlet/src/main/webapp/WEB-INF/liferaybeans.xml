@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	default-destroy-method="destroy"
+	default-init-method="afterPropertiesSet"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" xmlns:context="http://www.springframework.org/schema/context">
+    
+    <!-- all of this beans should have scope prototype -->
+    <!-- so they can be used the way they're meant to -->
+    <bean id="userServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.UserLocalServiceUtil" factory-method="getService" />
+    <bean id="groupServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.GroupLocalServiceUtil" factory-method="getService" />
+    <bean id="contactServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.ContactLocalServiceUtil" factory-method="getService" />
+    <bean id="layoutSetServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.LayoutSetLocalServiceUtil" factory-method="getService" />
+    <bean id="userUtilServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.persistence.UserUtil" factory-method="getPersistence" />
+    <bean id="roleServiceBeanFactory" scope="prototype" class="com.liferay.portal.service.RoleLocalServiceUtil" factory-method="getService" />
+    <bean id="counterLocalServiceFactory" scope="prototype" class="com.liferay.counter.service.CounterLocalServiceUtil" factory-method="getService" />
+    <bean id="journalArticleFinderFactory" scope="prototype" class="com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil" factory-method="getService" />
+    <bean id="journalContentFactory" scope="prototype" class="com.liferay.portlet.journalcontent.util.JournalContentUtil" factory-method="getJournalContent" />
+    <bean id="assetTagLocalServiceFactory" scope="prototype" class="com.liferay.portlet.asset.service.AssetTagLocalServiceUtil" factory-method="getService" />
+    <bean id="assetEntryLocalServiceFactory" scope="prototype" class="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" factory-method="getService" />
+</beans>
