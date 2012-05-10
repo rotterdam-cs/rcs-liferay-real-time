@@ -13,177 +13,157 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
 
-<script type="text/javascript">      
+<script type="text/javascript">
+    var nodesTable = null;
+    var linksTable = null;
+    var network = null;
 
-var nodesTable = null;
-var linksTable = null;
-var network = null;
+    function drawVisualization<portlet:namespace/>() {
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'style');
+        nodesTable.addColumn('string', 'group');
+        nodesTable.addColumn('string', 'title');
+        nodesTable.addColumn('string', 'action');
+        nodesTable.addColumn('datetime', 'timestamp');
 
-function drawVisualization<portlet:namespace/>() {
-    nodesTable = new google.visualization.DataTable();
-    nodesTable.addColumn('number', 'id');
-    nodesTable.addColumn('string', 'text');
-    nodesTable.addColumn('string', 'style');
-    nodesTable.addColumn('string', 'group');
-    nodesTable.addColumn('string', 'title');
-    nodesTable.addColumn('string', 'action');
-    nodesTable.addColumn('datetime', 'timestamp');
+        nodesTable.addRow([
+             0
+            ,''
+            ,'text'
+            ,undefined
+            ,'<fmt:message key="com.rcs.sense.admin.analytics.external.site"/>'
+            ,undefined
+            ,undefined
+        ]);
+        <c:forEach items="${pages}" var="row">
+            nodesTable.addRow([
+                     ${row.id}
+                    ,'${row.page}<c:if test="${row.currentvisitors > 0}" > \n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ${row.currentvisitors}</c:if>'
+                    ,'<c:if test="${row.id == 1}" >circle</c:if><c:if test="${row.id != 1}" >rect</c:if>'
+                    ,<c:if test="${row.current == true}" >'current'</c:if><c:if test="${row.current != true}" >'common'</c:if>
+                    ,'<a class="various" data-fancybox-type="iframe" href="${row.url}" ><fmt:message key="com.rcs.sense.admin.analytics.page.preview"/></a><br /><fmt:message key="com.rcs.sense.admin.analytics.total.views"/>: ${row.visits}<br />${row.usersInPageInfo}'
+                    ,undefined
+                    ,undefined
+                ]);
+        </c:forEach>
 
-    nodesTable.addRow([
-        0
-        ,''
-        ,'text'
-        ,undefined
-        ,'External Site'
-        ,undefined
-        ,undefined
-    ]);
-    <c:forEach items="${pages}" var="row">
-          nodesTable.addRow([
-                 ${row.id}
-                ,'${row.page}<c:if test="${row.currentvisitors > 0}" > \n Current: ${row.currentvisitors}</c:if>'
-                ,'<c:if test="${row.id == 1}" >circle</c:if><c:if test="${row.id != 1}" >rect</c:if>'
-                ,<c:if test="${row.current == true}" >'current'</c:if><c:if test="${row.current != true}" >'common'</c:if>
-                ,'<a class="various" data-fancybox-type="iframe" href="${row.url}" >Page Preview</a><br />Total Views: ${row.visits}<br />${row.usersInPageInfo}'
-                ,undefined
-                ,undefined
-            ]);
-    </c:forEach> 
-    
-    
-    linksTable = new google.visualization.DataTable();
-    linksTable.addColumn('number', 'id');
-    linksTable.addColumn('number', 'from');
-    linksTable.addColumn('number', 'to');
-    linksTable.addColumn('string', 'style');
-    linksTable.addColumn('number', 'width');
-    linksTable.addColumn('number', 'length');        
-    linksTable.addColumn('string', 'action');
-    linksTable.addColumn('datetime', 'timestamp');
-    
-    var total = 0;
-    var linksAdded = new Array();
-    <c:forEach items="${liferaySensorsData}" var="row">
-        var packageFrom = ${row.previous_pageId};
-        var packageTo = ${row.pageId};
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'id');
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('string', 'style');
+        linksTable.addColumn('number', 'width');
+        linksTable.addColumn('number', 'length');        
+        linksTable.addColumn('string', 'action');
+        linksTable.addColumn('datetime', 'timestamp');
 
-        if (packageFrom == packageTo) {
-            packageFrom = 0;
-        }
-        if (linksAdded[packageFrom] == null) {
-            linksAdded[packageFrom] =  new Array();
-        }
-        if (linksAdded[packageFrom][packageTo] !== true){
-            linksAdded[packageFrom][packageTo] = true;
-            linksTable.addRow([
-                total
-                ,packageFrom
-                ,packageTo
-                ,undefined
-                ,1
-                ,150
-                ,undefined
-                ,undefined
-            ]);        
-        }
-        total ++;
-    </c:forEach> 
-
-    // create a history with packages
-    packagesTable = new google.visualization.DataTable();
-    packagesTable.addColumn('number', 'id');
-    packagesTable.addColumn('number', 'from');
-    packagesTable.addColumn('number', 'to');
-    packagesTable.addColumn('string', 'title');
-    packagesTable.addColumn('number', 'progress');
-    packagesTable.addColumn('string', 'action');
-    packagesTable.addColumn('datetime', 'timestamp'); 
-    packagesTable.addColumn('number', 'duration');
-    packagesTable.addColumn('string', 'style');
-    packagesTable.addColumn('string', 'image');
-
-    var n = 0;
-    var action = 'create';
-    var color = undefined;
-    var stepCount = 10;
-    var second = ${stepSeconds};
-    //var timestamp = new Date();
-    <c:forEach items="${liferaySensorsData}" var="row">
-          var t = new Date(${row.timestamp});          
-          var title = 'node ' + n;
-          var duration = undefined;
-          
-          var packageFrom = ${row.previous_pageId};
-          var packageTo = ${row.pageId};
-          
-          if (packageFrom == packageTo) {
-              packageFrom = 0;
-          }
-          
-          var c = 0;
-          while (c < stepCount + 1) {
-                var progress = c / stepCount;
-                var action = 'create';
-                var title = ' Movement <b>' + n + '</b> at ' + Math.round(progress * 100) + '%<br>' + '<span style="color:gray;">(' + t.getTime() + ')</span><br>Using ${row.browser}';                
-                packagesTable.addRow([
-                     n
+        var total = 0;
+        var linksAdded = new Array();
+        <c:forEach items="${liferaySensorsData}" var="row">
+            var packageFrom = ${row.previous_pageId};
+            var packageTo = ${row.pageId};
+            if (packageFrom == packageTo) { packageFrom = 0; }
+            if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array(); }
+            if (linksAdded[packageFrom][packageTo] !== true){
+                linksAdded[packageFrom][packageTo] = true;
+                linksTable.addRow([
+                     total
                     ,packageFrom
                     ,packageTo
-                    ,title
-                    ,progress
-                    ,action
-                    ,new Date(t)
-                    ,duration
-                    ,'image'
-                    ,'/${pageContext.request.contextPath}/img/${row.browser}.png'
-                ]);                
-                c += 1;
-                t = new Date(t.getTime() + second);
-          }
-          packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);
-          //timestamp = new Date(timestamp.getTime() + (stepCount/total) * second);
-          n++;
-           
-    </c:forEach>
-
-    // specify options
-    options = {
-        width:  '650px', 
-        height: '550px'        
-        ,stabilize: false
-        ,'groups': {            
-            'current': {
-                'backgroundColor': 'blue',
-                'fontColor': 'white'
-                ,'fontSize': 11
+                    ,undefined
+                    ,1
+                    ,150
+                    ,undefined
+                    ,undefined
+                ]);        
             }
-        ,'common': {
-                'fontSize': 11
-            }           
-        }
-    };
+            total ++;
+        </c:forEach> 
 
-    network = new links.Network(document.getElementById('<portlet:namespace/>mynetwork'));
-    network.draw(nodesTable, linksTable, packagesTable, options);
-}
+        packagesTable = new google.visualization.DataTable();
+        packagesTable.addColumn('number', 'id');
+        packagesTable.addColumn('number', 'from');
+        packagesTable.addColumn('number', 'to');
+        packagesTable.addColumn('string', 'title');
+        packagesTable.addColumn('number', 'progress');
+        packagesTable.addColumn('string', 'action');
+        packagesTable.addColumn('datetime', 'timestamp'); 
+        packagesTable.addColumn('number', 'duration');
+        packagesTable.addColumn('string', 'style');
+        packagesTable.addColumn('string', 'image');
 
-      
-jQuery(function () {
-    drawVisualization<portlet:namespace/>();
-});
+        var n = 0;
+        var action = 'create';
+        var color = undefined;
+        var stepCount = 10;
+        var second = ${stepSeconds};
+        <c:forEach items="${liferaySensorsData}" var="row">
+            var t = new Date(${row.timestamp});          
+            var title = 'node ' + n;
+            var duration = undefined;
+            var packageFrom = ${row.previous_pageId};
+            var packageTo = ${row.pageId};
+            if (packageFrom == packageTo) { packageFrom = 0; }
+            var c = 0;
+            while (c < stepCount + 1) {
+                    var progress = c / stepCount;
+                    var action = 'create';
+                    var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
+                    packagesTable.addRow([
+                         n
+                        ,packageFrom
+                        ,packageTo
+                        ,title
+                        ,progress
+                        ,action
+                        ,new Date(t)
+                        ,duration
+                        ,'image'
+                        ,'${pageContext.request.contextPath}/img/${row.browser}.png'
+                    ]);                
+                    c += 1;
+                    t = new Date(t.getTime() + second);
+            }
+            packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);
+            n++;
+        </c:forEach>
 
-jQuery(".various").fancybox({
-        maxWidth	: 800,
-        maxHeight	: 600,
-        fitToView	: false,
-        width		: '70%',
-        height		: '70%',
-        autoSize	: false,
-        closeClick	: false,
-        openEffect	: 'none',
-        closeEffect	: 'none'
-});
+        options = {
+            height: '550px'        
+            ,stabilize: false
+            ,'groups': {            
+                'current': {
+                    'backgroundColor': 'blue'
+                    ,'fontColor': 'white'
+                    ,'fontSize': 11
+                }
+            ,'common': {
+                    'fontSize': 11
+                }           
+            }
+        };
+        network = new links.Network(document.getElementById('<portlet:namespace/>mynetwork'));
+        network.draw(nodesTable, linksTable, packagesTable, options);
+    }
     
+    jQuery(".various").fancybox({
+            maxWidth	: 800,
+            maxHeight	: 600,
+            fitToView	: false,
+            width	: '70%',
+            height	: '70%',
+            autoSize	: false,
+            closeClick	: false,
+            openEffect	: 'none',
+            closeEffect	: 'none'
+    });
+    
+    jQuery(function () {
+        drawVisualization<portlet:namespace/>();
+    }); 
 </script>
-<div><strong>Detailed report:</strong></div>
-<div id="<portlet:namespace/>mynetwork" style="background-color: #FFFFFF; width: 650px;"></div>
+
+<div><strong><fmt:message key="com.rcs.sense.admin.analytics.detailed.report"/>: </strong></div>
+<div id="<portlet:namespace/>mynetwork" class="sense-graphic-container sense-graphic-container-white"></div>

@@ -14,7 +14,7 @@
 <portlet:defineObjects />
  
 <div class="sense-logo">
-    <img src="/${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px">
+    <img src="${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px">
 </div>
 <div style="clear: both;"></div>
 

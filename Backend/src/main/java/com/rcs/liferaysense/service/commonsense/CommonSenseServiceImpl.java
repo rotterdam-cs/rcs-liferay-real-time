@@ -73,7 +73,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
-    public SensorValues getSensorData(CommonSenseSession session, int sensorId, Date dateFrom, Date dateTo) {
+    public SensorValues getSensorData(CommonSenseSession session, String sensorIdStr, Date dateFrom, Date dateTo) {
         //build the parameters
         Map<String, String> parameters = buildSessionParameters(session);
         if (parameters == null)
@@ -81,7 +81,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
 
         String startSecs = Long.toString(dateFrom.getTime() / 1000);
         String endSecs = Long.toString(dateTo.getTime() / 1000);
-        String sensorIdStr = Integer.toString(sensorId);
+        //String sensorIdStr = Integer.toString(sensorId);
 
         // build the parameters map.
         parameters.put("startSecs", startSecs);

@@ -18,7 +18,7 @@
 <div class="modal hide fade" id="<portlet:namespace/>helpWindow">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">x</a>
-        <h3><i class="icon-question-sign"></i> <fmt:message key="com.rcs.sense.admin.help.center"/> - <fmt:message key="com.rcs.sense.admin.account"/> <span style="float: right;"><img src="/${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px"></span></h3>
+        <h3><i class="icon-question-sign"></i> <fmt:message key="com.rcs.sense.admin.help.center"/> - <fmt:message key="com.rcs.sense.admin.account"/> <span style="float: right;"><img src="${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px"></span></h3>
     </div>
     <div class="modal-body">
         <p><fmt:message key="com.rcs.sense.admin.help.account1"/></p>

@@ -33,6 +33,8 @@ public interface Constants {
     public static final String LIFERAY_SENSOR_TYPE = "2";
     public static final String LIFERAY_SENSOR_DATA_STRUCTURE="{\"ip\":\"string\", \"pageId\":\"long\", \"previous_pageId\":\"long\", \"page\":\"string\", \"previous_page\":\"string\", \"userAgent\":\"string\", \"liferayUserId\":\"long\"}";
     
-    public static final int LIFERAY_SENSOR_ID = 138514;//remote
-    //public static final int LIFERAY_SENSOR_ID = 134898;//local
+    
+    public static final int NETWORKMAP_ZOOM_ADJUST_FACTOR = 250;
+    public static final int TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION = 5; //Minutes
+    
 }

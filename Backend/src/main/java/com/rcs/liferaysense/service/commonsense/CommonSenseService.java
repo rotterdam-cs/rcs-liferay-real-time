@@ -37,7 +37,7 @@ public interface CommonSenseService {
      * @param dateTo
      * @return 
      */
-    SensorValues getSensorData(CommonSenseSession session, int sensorId, Date dateFrom, Date dateTo);
+    SensorValues getSensorData(CommonSenseSession session, String sensorId, Date dateFrom, Date dateTo);
     
 
     /**

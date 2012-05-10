@@ -23,3 +23,12 @@
 .admin-mask {
     min-height: 600px;
 }
+.sense-graphic-container {
+    width: 650px;
+}
+.sense-graphic-container-white {
+    background-color: #FFFFFF;
+}
+.sense-graphic-daterange{
+    float: right;
+}
