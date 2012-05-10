@@ -49,20 +49,20 @@
     <div id="<portlet:namespace/>mynetworkcontainer"></div>
 </div>
 
-<script type="text/javascript">
-    function getTimeline() {        
+<script type="text/javascript">    
+    function getTimeline() {
+        jQuery("#<portlet:namespace/>administration-container-mask").mask('<fmt:message key="com.rcs.sense.general.mask.loading.text"/>');
         jQuery("#<portlet:namespace/>mytimelinecontainer").load("${getAnalyticsBigRangeURL}"
             ,{
                 "range" : jQuery('input:radio[name=<portlet:namespace/>range]:checked').val()
             }
             ,function() {            
-                jQuery("#<portlet:namespace/>containermask").unmask();
+                jQuery("#<portlet:namespace/>administration-container-mask").unmask();
             }
         );
     }
     jQuery(function () {
-        jQuery("#<portlet:namespace/>containermask").mask('<fmt:message key="com.rcs.sense.general.mask.loading.text"/>');
-        getTimeline();
+        setTimeout(getTimeline, 1000);
         jQuery('input:radio[name=<portlet:namespace/>range]').on("change", function(){ getTimeline(); });
     });
 </script>

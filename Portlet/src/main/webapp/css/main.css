@@ -8,7 +8,7 @@
 }
 
 .sense-admin-left-container {
-    margin-top: 30px;
+    /*margin-top: 30px;*/
 }
 
 .sense-admin-left-container form p {
@@ -22,6 +22,7 @@
 }
 .admin-mask {
     min-height: 600px;
+    padding: 10px;
 }
 .sense-graphic-container {
     width: 650px;

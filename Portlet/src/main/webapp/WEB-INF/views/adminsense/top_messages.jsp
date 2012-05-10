@@ -13,11 +13,11 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
 
-<div class="alert alert-block alert-error fade in">
+<div class="alert alert-block alert-error fade in" style="display: none;">
     <h4 class="alert-heading"><fmt:message key="com.rcs.sense.general.error.processing.data"/></h4>
     <p id="<portlet:namespace/>alert-content"><c:out value="${errorMessage}" escapeXml="false" /></p>
 </div>
-<div class="alert alert-info fade in">
+<div class="alert alert-info fade in" style="display: none;">
     <span id="<portlet:namespace/>info-content"><c:out value="${infoMessage}" escapeXml="false" /></span>
 </div>
 <script type="text/javascript">

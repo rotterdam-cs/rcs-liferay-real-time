@@ -13,11 +13,6 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
  
-<div class="sense-logo">
-    <img src="${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px">
-</div>
-<div style="clear: both;"></div>
-
 <ul class="nav nav-list">                    
     <c:if test="${isSenseAdmin == true}" >
         <li class="divider"></li>
@@ -30,7 +25,7 @@
             <a href="#<%=Constants.ADMIN_SECTION_GLOBAL_SETTINGS%>" data-toggle="tab" rel="sense-admin-menu-general-settings">
                 <i class="icon-share"></i><fmt:message key="com.rcs.sense.admin.global.settings"/>                           
             </a>
-        </li> 
-    </c:if>
-                   
+        </li>
+        <li class="divider"></li>
+    </c:if>                   
 </ul>
