@@ -30,16 +30,16 @@
     
 <div class="controls">
     <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="1" checked>
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.month"/>
+        <input type="radio" name="<portlet:namespace/>range" value="3" checked>
+        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.day"/>
     </label>
     <label class="radio">
         <input type="radio" name="<portlet:namespace/>range" value="2">
         <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.week"/>
     </label>
     <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="3">
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.day"/>
+        <input type="radio" name="<portlet:namespace/>range" value="1">
+        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.month"/>
     </label>
 </div>
 

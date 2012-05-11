@@ -146,6 +146,11 @@
         };
         network = new links.Network(document.getElementById('<portlet:namespace/>mynetwork'));
         network.draw(nodesTable, linksTable, packagesTable, options);
+        setTimeout(startAnimation<portlet:namespace/>, 1000);
+    }
+    
+    function startAnimation<portlet:namespace/>() {
+        network.animationStart();
     }
     
     jQuery(".various").fancybox({

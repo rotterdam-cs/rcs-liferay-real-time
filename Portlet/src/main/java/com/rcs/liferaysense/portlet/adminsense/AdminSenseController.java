@@ -69,8 +69,7 @@ public class AdminSenseController {
      */
     @RenderMapping
     public ModelAndView resolveView(PortletRequest request, PortletResponse response) throws PortalException, SystemException {
-        HashMap<String, Object> modelAttrs = new HashMap<String, Object>();
-        ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);       
+        HashMap<String, Object> modelAttrs = new HashMap<String, Object>();       
         Long liferayUserId = utils.getUserId(request);        
         modelAttrs.put("isSenseAdmin", senseUserService.isSenseAdministratorByLiferayUserId(liferayUserId));
         return new ModelAndView("adminsense/view", modelAttrs); 
@@ -79,7 +78,7 @@ public class AdminSenseController {
     
     
     /*
-     ************************************************************** AJAX Methods
+     ********************************************** ResourceMapping AJAX Methods
     */
     
     /**
@@ -90,17 +89,22 @@ public class AdminSenseController {
      * @throws Exception 
      */
     @ResourceMapping(value = "senseAdminSections")
-    public ModelAndView senseAdminSectionsController(String section, ResourceRequest request, ResourceResponse response) throws Exception {
-        
+    public ModelAndView senseAdminSectionsController(
+             String section
+            ,ResourceRequest request
+            ,ResourceResponse response
+    ) throws Exception {        
         HashMap<String, Object> modelAttrs = new HashMap<String, Object>();        
         Long liferayUserId = utils.getUserId(request);
         Locale locale = LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request));
+        long groupId = utils.getGroupId(request);
+        long companyId = utils.getcompanyId(request);
         
         boolean isSenseAdmin = senseUserService.isSenseAdministratorByLiferayUserId(liferayUserId);          
         
         if (section.equals(ADMIN_SECTION_ACCOUNT)) {            
             //Account
-            modelAttrs = admin_section_account(modelAttrs, liferayUserId, locale, request, response);            
+            modelAttrs = admin_section_account(modelAttrs, liferayUserId, groupId, companyId);            
         } else if (section.equals(ADMIN_SECTION_ANALYTICS)) {            
             //Analytics            
             
@@ -112,7 +116,7 @@ public class AdminSenseController {
                 return new ModelAndView("adminsense/" + ADMIN_SUBSECTION_TOP_MESSAGES, modelAttrs);
             } else {                
                 //Global Settings
-                modelAttrs = admin_section_global_settings(modelAttrs, liferayUserId, locale, request, response);
+                modelAttrs = admin_section_global_settings(modelAttrs);
             }            
         }
         modelAttrs.put("isSenseAdmin", isSenseAdmin);
@@ -137,7 +141,7 @@ public class AdminSenseController {
             ,String clientlocation
             ,ResourceRequest request
             ,ResourceResponse response
-        ) throws Exception {        
+    ) throws Exception {        
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         long groupId = utils.getGroupId(request);
         long companyId = utils.getcompanyId(request);   
@@ -202,7 +206,7 @@ public class AdminSenseController {
     
     /**
      * AJAX
-     * Admin / Analytics / getAnalyticsBigRange
+     * Admin / Analytics / getAnalyticsRange (Detailed Network View)
      * @param startTime
      * @param endTime
      * @param clientlocation
@@ -218,7 +222,7 @@ public class AdminSenseController {
             ,String clientlocation
             ,ResourceRequest request
             ,ResourceResponse response
-        ) throws Exception {        
+    ) throws Exception {        
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         long groupId = utils.getGroupId(request);
         long companyId = utils.getcompanyId(request); 
@@ -350,6 +354,10 @@ public class AdminSenseController {
 
     
     
+    /*
+     ********************************************** ResourceMapping AJAX Methods
+    */
+    
     /**
      * Auxiliar Method
      * Section Account first AJAX call
@@ -362,11 +370,9 @@ public class AdminSenseController {
      * @throws PortalException
      * @throws SystemException 
      */
-    private HashMap admin_section_account(HashMap<String, Object> modelAttrs,Long liferayUserId, Locale locale, ResourceRequest request, ResourceResponse response) throws PortalException, SystemException {         
-        modelAttrs = admin_section_global_settings(modelAttrs, liferayUserId, locale, request, response);        
+    private HashMap admin_section_account(HashMap<String, Object> modelAttrs,Long liferayUserId, long groupId, long companyId) throws PortalException, SystemException {         
+        modelAttrs = admin_section_global_settings(modelAttrs);        
         boolean senseUserRegistered = false;
-        long groupId = utils.getGroupId(request);
-        long companyId = utils.getcompanyId(request);
         
         SenseUser senseUser = senseUserService.findByLiferayId(groupId, companyId, liferayUserId);
         
@@ -399,8 +405,7 @@ public class AdminSenseController {
      * @throws PortalException
      * @throws SystemException 
      */
-    private HashMap admin_section_global_settings(HashMap<String, Object> modelAttrs,Long liferayUserId, Locale locale, ResourceRequest request, ResourceResponse response) throws PortalException, SystemException {        
-        //Send all configurations to the view
+    private HashMap admin_section_global_settings(HashMap<String, Object> modelAttrs) throws PortalException, SystemException {        
         List<SenseConfiguration> senseConfigurations = senseConfigurationService.findAll();
         for (SenseConfiguration senseConfiguration : senseConfigurations) {            
             if (senseConfiguration.getPropertyValue()!= null && senseConfiguration.getPropertyValue().equals(CHECKBOX_SELECTED_VALUE)){
@@ -451,19 +456,20 @@ public class AdminSenseController {
                 liferaySensorDataDTO.setPrevious_pageId(liferaySensorData.getPrevious_pageId());
                 
                 String userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.visitorinformation", locale);
-                userInformation.replace("{ip}", liferaySensorData.getIp());
-                userInformation.replace("{img}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+                userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorData.getIp());
+                userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
                 
                 Long liferayUserId = liferaySensorData.getLiferayUserId();
                 if (liferayUserId != 0) {
                     User liferayUser = userService.getUserById(liferayUserId);
                     if (liferayUser != null) {
-                        userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);                        
-                        userInformation.replace("{ip}", liferaySensorData.getIp());
-                        userInformation.replace("{img}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-                        userInformation.replace("{name}", liferayUser.getFullName());
-                        userInformation.replace("{email}", liferayUser.getEmailAddress());
+                        userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);
+                        userInformation = userInformation.replaceAll("\\{name\\}", liferayUser.getFullName());                        
+                        userInformation = userInformation.replaceAll("\\{email\\}", liferayUser.getEmailAddress());                        
                     }
+                    userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorData.getIp());
+                    userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+                    
                     liferaySensorDataDTO.setLiferayUserInformation(userInformation);
                 } else {
                     liferayUserId = Long.parseLong(liferaySensorData.getIp().replaceAll("[^\\d]", ""));
