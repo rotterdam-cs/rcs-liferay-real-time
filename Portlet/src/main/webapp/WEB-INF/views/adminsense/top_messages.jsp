@@ -17,7 +17,7 @@
     <h4 class="alert-heading"><fmt:message key="com.rcs.sense.general.error.processing.data"/></h4>
     <p id="<portlet:namespace/>alert-content"><c:out value="${errorMessage}" escapeXml="false" /></p>
 </div>
-<div class="alert alert-info fade in" style="display: none;">
+<div class="alert alert-success fade in" style="display: none;">
     <span id="<portlet:namespace/>info-content"><c:out value="${infoMessage}" escapeXml="false" /></span>
 </div>
 <script type="text/javascript">
@@ -26,7 +26,7 @@
             jQuery(".alert-error").hide();
         </c:if>
             <c:if test="${infoMessage == null}" >
-            jQuery(".alert-info").hide();
+            jQuery(".alert-success").hide();
         </c:if>
     });
 </script>

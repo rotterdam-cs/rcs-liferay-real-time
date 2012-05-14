@@ -3,7 +3,17 @@ package com.rcs.liferaysense.service.commonsense;
 import antlr.StringUtils;
 import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.google.gson.Gson;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalService;
+import com.rcs.common.service.ServiceActionResult;
+import com.rcs.liferaysense.entities.SenseConfiguration;
+import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
+import com.rcs.liferaysense.entities.dtos.PagesDto;
 import com.rcs.liferaysense.entities.dtos.ResponseErrorMessage;
 import java.util.*;
 import javax.annotation.PostConstruct;
@@ -16,6 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import static com.rcs.liferaysense.common.Constants.*;
+import com.rcs.liferaysense.common.ResourceBundleHelper;
+import com.rcs.liferaysense.service.local.SenseConfigurationService;
 
 /**
  * Implementation of the common sense service. This uses the spring framework
@@ -24,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 class CommonSenseServiceImpl implements CommonSenseService {
+    private static Log log = LogFactoryUtil.getLog(CommonSenseServiceImpl.class);
 
     private static final Logger logger = LoggerFactory.getLogger(CommonSenseService.class);
     /**
@@ -55,6 +69,11 @@ class CommonSenseServiceImpl implements CommonSenseService {
     @Autowired
     private Validator validator;
     
+    @Autowired
+    private SenseConfigurationService senseConfigurationService;
+    
+    @Autowired
+    private UserLocalService userService;
     /**
      * Perform instance initialization, this sets up the restTemplate instance
      * and associate it with the custom error handler.
@@ -117,7 +136,125 @@ class CommonSenseServiceImpl implements CommonSenseService {
         retvalues.setJson(json);
         return retvalues;
     }
- 
+    
+    /**
+     * @param session
+     * @param sensorIdStr
+     * @param dateFrom
+     * @param dateTo
+     * @param pages
+     * @return 
+     */
+    @Override
+    public List <LiferaySensorDataDTO> getSensorDataDTO(CommonSenseSession session, String sensorIdStr, Date dateFrom, Date dateTo, List<PagesDto> pages, long groupId, long companyId, Locale locale, String contextPath) {
+        List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
+        SensorValues sensorValues = getSensorData(session, sensorIdStr, dateFrom, dateTo);        
+        Gson gson = new Gson();
+        SensorValue[] gavalues = sensorValues.getData();        
+        
+        //get time to keep alive navigation
+        Calendar gcToRemove = GregorianCalendar.getInstance(); 
+        gcToRemove.setTime(new Date());
+        int timeAlive = DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
+        ServiceActionResult<SenseConfiguration> serviceActionResultTimeConf = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION);
+        if (serviceActionResultTimeConf.isSuccess()) {
+            timeAlive = Integer.parseInt(serviceActionResultTimeConf.getPayload().getPropertyValue());
+        }
+        gcToRemove.add(Calendar.MINUTE, -timeAlive);
+        Long timeToRemove = gcToRemove.getTimeInMillis();
+        
+        for (SensorValue sensorValue : gavalues) {
+            LiferaySensorData liferaySensorData = gson.fromJson(sensorValue.getValue(), LiferaySensorData.class);
+            LiferaySensorDataDTO liferaySensorDataDTO = new LiferaySensorDataDTO();            
+            liferaySensorDataDTO.setTimestamp(sensorValue.getAsDate().getTime());
+            liferaySensorDataDTO.setBrowser(liferaySensorData.getUserAgent());
+            liferaySensorDataDTO.setPage(liferaySensorData.getPage());
+            liferaySensorDataDTO.setPageId(liferaySensorData.getPageId());
+            liferaySensorDataDTO.setPrevious_page(liferaySensorData.getPrevious_page());
+            liferaySensorDataDTO.setPrevious_pageId(liferaySensorData.getPrevious_pageId());
+            liferaySensorDataDTO.setLiferayUserId(liferaySensorData.getLiferayUserId());
+            liferaySensorDataDTO.setIp(liferaySensorData.getIp());            
+            
+            String userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.visitorinformation", locale);
+            userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
+            userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+
+            Long liferayUserId = liferaySensorDataDTO.getLiferayUserId();
+            if (liferayUserId != 0) {
+                try {
+                    User liferayUser = userService.getUserById(liferayUserId);
+                    if (liferayUser != null) {
+                        userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);
+                        userInformation = userInformation.replaceAll("\\{name\\}", liferayUser.getFullName());                        
+                        userInformation = userInformation.replaceAll("\\{email\\}", liferayUser.getEmailAddress());                        
+                    } 
+                } catch (PortalException e) {
+                    log.error("PortalException" + e);
+                } catch (SystemException e) {
+                    log.error("SystemException" + e);
+                }
+
+                userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
+                userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+
+                liferaySensorDataDTO.setLiferayUserInformation(userInformation);
+            } else {
+                liferayUserId = Long.parseLong(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
+            }
+            
+            for (PagesDto pagesDto : pages) {
+                if (pagesDto.getId() == liferaySensorDataDTO.getPageId()) {
+                    pagesDto.setVisits(pagesDto.getVisits() + 1);
+                    log.error("adding visits to (" + pagesDto.getId() + ")" + pagesDto.getPage() + " = " + pagesDto.getVisits());
+                    liferaySensorDataDTO.setPageCounter(pagesDto.getVisits());
+                    for (PagesDto pagesDtoInt : pages) {
+                        if (pagesDtoInt.isUserInPage(liferayUserId)){
+                            pagesDtoInt.removeUsersInPage(liferayUserId);
+                        }
+                    }                        
+                    gcToRemove.setTime(new Date(liferaySensorDataDTO.getTimestamp()));
+                    //Add user to page only if he has entered to the page between the last n minutes                                               
+                    if (liferaySensorDataDTO.getTimestamp() > timeToRemove) {
+                        pagesDto.addUsersInPage(liferayUserId, userInformation);
+                    }
+                }
+            }
+            for (PagesDto pagesDto : pages) {
+                HashMap<Long, String> usersInPage = pagesDto.getUsersInPage();
+                StringBuilder sb = new StringBuilder();
+                for (Map.Entry<Long,String> entry : usersInPage.entrySet()) {
+                    sb.append(entry.getValue());
+                    sb.append("<br />");
+                }
+                pagesDto.setUsersInPageInfo(sb.toString());
+            }
+            
+            //Only add the movement with exiting pages
+            if (isValidMovement(pages, liferaySensorDataDTO.getPageId(), liferaySensorDataDTO.getPrevious_pageId())) {
+                liferaySensorsData.add(liferaySensorDataDTO);
+            }
+        }
+        return liferaySensorsData;
+    }
+    
+    private boolean isValidMovement(List<PagesDto> pages, long pageFrom, long pageTo) {
+        boolean result = false;
+        for (PagesDto pagesDto : pages) {            
+            if (pagesDto.getId() == pageFrom){
+                result = true;
+            }
+        }
+        if (result) {
+            result = false;
+            for (PagesDto pagesDto : pages) {            
+                if (pagesDto.getId() == pageTo){
+                    result = true;
+                }
+            }   
+        }
+        return result;
+    }
+    
     /**
      * {@inheritDoc }
      * @param session

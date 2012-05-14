@@ -20,12 +20,15 @@
         <h3><i class="icon-question-sign"></i> <fmt:message key="com.rcs.sense.admin.help.center"/> - <fmt:message key="com.rcs.sense.admin.global.settings"/> <span style="float: right;"><img src="${pageContext.request.contextPath}/img/SENSELogo.jpeg" width="100px"></span></h3>
     </div>
     <div class="modal-body">
+        <%--
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings1"/></p>
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings2"/></p>        
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings3"/></p>
         <p></p>
         <p></p>
+        --%>
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings4"/></p>
+        <p><fmt:message key="com.rcs.sense.admin.help.global.settings5"/></p>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal"><fmt:message key="com.rcs.sense.general.close"/></a>
@@ -54,9 +57,14 @@
     </p>
     
     <p>
+        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>"><fmt:message key="com.rcs.sense.general.keepalive.page.navigation"/>:</label>
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" class="required span2 number" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" value="${time_to_keep_alive_page_navigation}" />
+    </p>
+    
+    <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>"><fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>:</label>
         <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" class="span2" readonly="true" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" value="${default_sense_liferaysensordata_id}" />
-    </p>
+    </p>    
      
     <p>
         <button type="button" class="btn" id="<portlet:namespace/>global-settings-button-save"><fmt:message key="com.rcs.sense.general.save"/></button>        
@@ -71,12 +79,12 @@
             var response = getResponseTextInfo(responseText);
             if (!response[0]) {
                 jQuery("#<portlet:namespace/>alert-content").html(response[1]);
-                jQuery(".alert-info").hide();
+                jQuery(".alert-success").hide();
                 jQuery(".alert-error").fadeIn();                
             } else {
                 jQuery(".alert-error").hide();
                 jQuery("#<portlet:namespace/>info-content").html(response[1]);
-                jQuery(".alert-info").fadeIn();                
+                jQuery(".alert-success").fadeIn();                
             }
             jQuery("#<portlet:namespace/>administration-container-mask").unmask();
         }

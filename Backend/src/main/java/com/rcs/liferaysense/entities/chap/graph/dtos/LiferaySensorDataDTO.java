@@ -15,10 +15,11 @@ public class LiferaySensorDataDTO implements Serializable {
     private long pageId;
     private long previous_pageId;
     private String color;
-    private double timestamp;
+    private long timestamp;
     private String browser = "other";
     private String liferayUserInformation;
     private int pageCounter;
+    private long liferayUserId;
     
     public String getIp() {
         return ip;
@@ -68,11 +69,11 @@ public class LiferaySensorDataDTO implements Serializable {
         this.color = color;
     }
 
-    public double getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(double timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -111,6 +112,14 @@ public class LiferaySensorDataDTO implements Serializable {
 
     public void setPageCounter(int pageCounter) {
         this.pageCounter = pageCounter;
+    }
+
+    public long getLiferayUserId() {
+        return liferayUserId;
+    }
+
+    public void setLiferayUserId(long liferayUserId) {
+        this.liferayUserId = liferayUserId;
     }
     
     

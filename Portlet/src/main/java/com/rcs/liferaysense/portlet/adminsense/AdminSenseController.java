@@ -21,7 +21,7 @@ import com.rcs.liferaysense.entities.SenseUser;
 import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
-import com.rcs.liferaysense.portlet.common.ResourceBundleHelper;
+import com.rcs.liferaysense.common.ResourceBundleHelper;
 import com.rcs.liferaysense.portlet.common.Utils;
 import com.rcs.liferaysense.service.commonsense.*;
 import com.rcs.liferaysense.service.local.SenseConfigurationService;
@@ -147,6 +147,7 @@ public class AdminSenseController {
         long companyId = utils.getcompanyId(request);   
         HashMap<String, Object> modelAttrs = new HashMap<String, Object>();        
         Locale locale = themeDisplay.getLocale();
+        String contextPath = request.getContextPath();
         
         //if we need to get information from other groups we need to change this
         List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(themeDisplay.getScopeGroupId(), false);      
@@ -172,28 +173,13 @@ public class AdminSenseController {
         CommonSenseSession commonSenseSession = getDefaultUserCommonSenseSession(groupId, companyId);
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
         if (commonSenseSession != null && serviceActionResult.isSuccess()) {
-            String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();
-            SensorValues sensorValues = commonSenseService.getSensorData(commonSenseSession, liferaySensorId, fromDate, toDate);
-            
-            Gson gson = new Gson();
-            SensorValue[] gavalues = sensorValues.getData();            
-            
-            for (SensorValue sensorValue : gavalues) {
-                LiferaySensorData liferaySensorData = gson.fromJson(sensorValue.getValue(), LiferaySensorData.class);
-                LiferaySensorDataDTO liferaySensorDataDTO = new LiferaySensorDataDTO();
-                for (PagesDto pagesDto : pages) {
-                    if (pagesDto.getId() == liferaySensorData.getPageId()) {
-                        pagesDto.setVisits(pagesDto.getVisits() + 1);
-                        liferaySensorDataDTO.setTimestamp(sensorValue.getAsDate().getTime());
-                        liferaySensorDataDTO.setBrowser(liferaySensorData.getUserAgent());
-                        liferaySensorDataDTO.setPage(liferaySensorData.getPage());
-                        liferaySensorDataDTO.setPageId(liferaySensorData.getPageId());
-                        liferaySensorDataDTO.setPrevious_page(liferaySensorData.getPrevious_page());
-                        liferaySensorDataDTO.setPrevious_pageId(liferaySensorData.getPrevious_pageId());
-                        liferaySensorDataDTO.setPageCounter(pagesDto.getVisits());
-                        liferaySensorsData.add(liferaySensorDataDTO);
-                    }                    
-                }                
+            String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();            
+            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
+                log.error("0 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
+            }
+            liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
+            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
+                log.error("1 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
             }
         }        
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
@@ -254,7 +240,8 @@ public class AdminSenseController {
              String auto_register
             ,String allow_change_account
             ,String default_sense_username
-            ,String default_sense_pass            
+            ,String default_sense_pass  
+            ,String time_to_keep_alive_page_navigation          
             ,ResourceRequest request
             ,ResourceResponse response
     ) throws Exception {
@@ -328,6 +315,7 @@ public class AdminSenseController {
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME, default_sense_username);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD, default_password);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID, liferaySensorDataId);
+        configurationOptions.put(ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION, time_to_keep_alive_page_navigation);
         
         //Save all configuration options
         for (Map.Entry<String, String> entry : configurationOptions.entrySet()) {           
@@ -440,108 +428,84 @@ public class AdminSenseController {
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
         if (commonSenseSession != null && serviceActionResult.isSuccess()) {
             String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();
-            SensorValues sensorValues = commonSenseService.getSensorData(commonSenseSession, liferaySensorId, fromDate, toDate);            
-            
-            Gson gson = new Gson();
-            SensorValue[] gavalues = sensorValues.getData();            
-            
-            for (SensorValue sensorValue : gavalues) {
-                LiferaySensorData liferaySensorData = gson.fromJson(sensorValue.getValue(), LiferaySensorData.class);                
-                LiferaySensorDataDTO liferaySensorDataDTO = new LiferaySensorDataDTO();  
-                liferaySensorDataDTO.setTimestamp(sensorValue.getAsDate().getTime());
-                liferaySensorDataDTO.setBrowser(liferaySensorData.getUserAgent());
-                liferaySensorDataDTO.setPage(liferaySensorData.getPage());
-                liferaySensorDataDTO.setPageId(liferaySensorData.getPageId());
-                liferaySensorDataDTO.setPrevious_page(liferaySensorData.getPrevious_page());
-                liferaySensorDataDTO.setPrevious_pageId(liferaySensorData.getPrevious_pageId());
-                
-                String userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.visitorinformation", locale);
-                userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorData.getIp());
-                userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-                
-                Long liferayUserId = liferaySensorData.getLiferayUserId();
-                if (liferayUserId != 0) {
-                    User liferayUser = userService.getUserById(liferayUserId);
-                    if (liferayUser != null) {
-                        userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);
-                        userInformation = userInformation.replaceAll("\\{name\\}", liferayUser.getFullName());                        
-                        userInformation = userInformation.replaceAll("\\{email\\}", liferayUser.getEmailAddress());                        
-                    }
-                    userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorData.getIp());
-                    userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-                    
-                    liferaySensorDataDTO.setLiferayUserInformation(userInformation);
-                } else {
-                    liferayUserId = Long.parseLong(liferaySensorData.getIp().replaceAll("[^\\d]", ""));
-                }
-                
-                //Only add the movement with exiting pages
-                if (isValidMovement(pages, liferaySensorDataDTO.getPageId(), liferaySensorDataDTO.getPrevious_pageId())) {
-                    liferaySensorsData.add(liferaySensorDataDTO);
-                }                
-                
-                for (PagesDto pagesDto : pages) {
-                    if (pagesDto.getId() == liferaySensorData.getPageId()) {                
-                        pagesDto.setVisits(pagesDto.getVisits() + 1);
-                        for (PagesDto pagesDtoInt : pages) {
-                            if (pagesDtoInt.isUserInPage(liferayUserId)){
-                                pagesDtoInt.removeUsersInPage(liferayUserId);
-                            }
-                        }                        
-                        //Add user to page only if he has entered to the page between the last n minutes (configured in Constants)
-                        Calendar gcToRemove = GregorianCalendar.getInstance(); 
-                        gcToRemove.setTime(new Date());
-                        gcToRemove.add(Calendar.MINUTE, -TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION);
-                        Long timeToRemove = gcToRemove.getTimeInMillis();                        
-                        if (liferaySensorDataDTO.getTimestamp() > timeToRemove) {
-                            pagesDto.addUsersInPage(liferayUserId, userInformation);
-                        }
-                    }                    
-                }               
-            }            
-            
-            for (PagesDto pagesDto : pages) {
-                HashMap<Long, String> usersInPage = pagesDto.getUsersInPage();
-                StringBuilder sb = new StringBuilder();
-                for (Map.Entry<Long,String> entry : usersInPage.entrySet()) {
-                    sb.append(entry.getValue());
-                    sb.append("<br />");
-                }
-                pagesDto.setUsersInPageInfo(sb.toString());
-            }            
+            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
+                log.error("3 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
+            }
+            liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
+            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
+                log.error("4 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
+            }
+//            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
+//
+//                String userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.visitorinformation", locale);
+//                userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
+//                userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+//                
+//                Long liferayUserId = liferaySensorDataDTO.getLiferayUserId();
+//                if (liferayUserId != 0) {
+//                    try {
+//                       User liferayUser = userService.getUserById(liferayUserId);
+//                        if (liferayUser != null) {
+//                            userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);
+//                            userInformation = userInformation.replaceAll("\\{name\\}", liferayUser.getFullName());                        
+//                            userInformation = userInformation.replaceAll("\\{email\\}", liferayUser.getEmailAddress());                        
+//                        } 
+//                    } catch (PortalException e) {
+//                        log.error("PortalException" + e);
+//                    } catch (SystemException e) {
+//                        log.error("SystemException" + e);
+//                    }
+//                    
+//                    userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
+//                    userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
+//                    
+//                    liferaySensorDataDTO.setLiferayUserInformation(userInformation);
+//                } else {
+//                    liferayUserId = Long.parseLong(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
+//                }
+//                              
+//                
+//                //get time to keep alive navigation
+//                Calendar gcToRemove = GregorianCalendar.getInstance(); 
+//                gcToRemove.setTime(new Date());
+//                int timeAlive = DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
+//                ServiceActionResult<SenseConfiguration> serviceActionResultTimeConf = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION);
+//                if (serviceActionResultTimeConf.isSuccess()) {
+//                    timeAlive = Integer.parseInt(serviceActionResultTimeConf.getPayload().getPropertyValue());
+//                }                        
+//                gcToRemove.add(Calendar.MINUTE, -timeAlive);
+//                Long timeToRemove = gcToRemove.getTimeInMillis();
+//                for (PagesDto pagesDto : pages) {
+//                    if (pagesDto.getId() == liferaySensorDataDTO.getPageId()) {
+//                        for (PagesDto pagesDtoInt : pages) {
+//                            if (pagesDtoInt.isUserInPage(liferayUserId)){
+//                                pagesDtoInt.removeUsersInPage(liferayUserId);
+//                            }
+//                        }                        
+//                        gcToRemove.setTime(new Date(liferaySensorDataDTO.getTimestamp()));
+//                        //Add user to page only if he has entered to the page between the last n minutes                                               
+//                        if (liferaySensorDataDTO.getTimestamp() > timeToRemove) {
+//                            pagesDto.addUsersInPage(liferayUserId, userInformation);
+//                        }
+//                    }                    
+//                }               
+//            }            
+//            
+//            for (PagesDto pagesDto : pages) {
+//                HashMap<Long, String> usersInPage = pagesDto.getUsersInPage();
+//                StringBuilder sb = new StringBuilder();
+//                for (Map.Entry<Long,String> entry : usersInPage.entrySet()) {
+//                    sb.append(entry.getValue());
+//                    sb.append("<br />");
+//                }
+//                pagesDto.setUsersInPageInfo(sb.toString());
+//            }            
         }
         modelAttrs.put("pages", pages);
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
         return modelAttrs;
     }
-    
-    
-    
-    /**
-     * Auxiliar Method
-     * @param pages
-     * @param pageFrom
-     * @param pageTo
-     * @return 
-     */
-    private boolean isValidMovement(List<PagesDto> pages, long pageFrom, long pageTo) {
-        boolean result = false;
-        for (PagesDto pagesDto : pages) {            
-            if (pagesDto.getId() == pageFrom){
-                result = true;
-            }
-        }
-        if (result) {
-            result = false;
-            for (PagesDto pagesDto : pages) {            
-                if (pagesDto.getId() == pageTo){
-                    result = true;
-                }
-            }   
-        }
-        return result;
-    }
-    
+      
     
     
     /**

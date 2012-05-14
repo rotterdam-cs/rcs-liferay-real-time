@@ -71,12 +71,12 @@
             var response = getResponseTextInfo(responseText);                       
             if (!response[0]) {
                 jQuery("#<portlet:namespace/>alert-content").html(response[1]);
-                jQuery(".alert-info").hide();
+                jQuery(".alert-success").hide();
                 jQuery(".alert-error").fadeIn();                
             } else {
                 jQuery(".alert-error").hide();
                 jQuery("#<portlet:namespace/>info-content").html(response[1]);
-                jQuery(".alert-info").fadeIn();
+                jQuery(".alert-success").fadeIn();
                 <c:if test="${allow_change_account == true}" >
                     jQuery("#<portlet:namespace/>account-user-created-account").click();
                 </c:if>
@@ -97,12 +97,12 @@
             var response = getResponseTextInfo(responseText);
             if (!response[0]) {
                 jQuery("#<portlet:namespace/>alert-content").html(response[1]);
-                jQuery(".alert-info").hide();
+                jQuery(".alert-success").hide();
                 jQuery(".alert-error").fadeIn();                
             } else {
                 jQuery(".alert-error").hide();
                 jQuery("#<portlet:namespace/>info-content").html(response[1]);
-                jQuery(".alert-info").fadeIn();
+                jQuery(".alert-success").fadeIn();
                 jQuery(".sense-admin-right-menu li.disabled").removeClass("disabled");
                 jQuery("#<portlet:namespace/>account-button-save").attr("disabled", true);
             }

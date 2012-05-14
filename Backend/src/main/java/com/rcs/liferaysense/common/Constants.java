@@ -22,7 +22,8 @@ public interface Constants {
     public static final String ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT = "allow_change_account";
     public static final String ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME = "default_sense_username";
     public static final String ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD = "default_sense_pass";
-    public static final String ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID = "default_sense_liferaysensordata_id";
+    public static final String ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID = "default_sense_liferaysensordata_id";    
+    public static final String ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION = "time_to_keep_alive_page_navigation";
     
     public static final String CHECKBOX_SELECTED_VALUE = "on";
     
@@ -35,6 +36,6 @@ public interface Constants {
     
     
     public static final int NETWORKMAP_ZOOM_ADJUST_FACTOR = 250;
-    public static final int TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION = 5; //Minutes
+    public static final int DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION = 5; //Minutes
     
 }

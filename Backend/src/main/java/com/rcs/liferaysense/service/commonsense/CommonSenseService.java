@@ -1,9 +1,12 @@
 package com.rcs.liferaysense.service.commonsense;
 
+import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
 import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
+import com.rcs.liferaysense.entities.dtos.PagesDto;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Implements common sense API calls.
@@ -38,6 +41,17 @@ public interface CommonSenseService {
      * @return 
      */
     SensorValues getSensorData(CommonSenseSession session, String sensorId, Date dateFrom, Date dateTo);
+    
+    /**
+     * 
+     * @param session
+     * @param sensorId
+     * @param dateFrom
+     * @param dateTo
+     * @param pages
+     * @return 
+     */
+    List <LiferaySensorDataDTO> getSensorDataDTO(CommonSenseSession session, String sensorId, Date dateFrom, Date dateTo, List<PagesDto> pages, long groupId, long companyId, Locale locale, String contextPath);
     
 
     /**

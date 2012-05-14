@@ -1,4 +1,4 @@
-package com.rcs.liferaysense.portlet.common;
+package com.rcs.liferaysense.common;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

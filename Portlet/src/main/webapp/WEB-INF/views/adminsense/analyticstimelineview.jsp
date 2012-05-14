@@ -18,20 +18,35 @@
     var startTime = "${fromDate}";
     var endTime = "${toDate}";
     var loading = false;
-
-    function drawVisualizationimeline<portlet:namespace/>() {
-        var data = new google.visualization.DataTable();
+    var data;
+    var timelne;
+    var rowsTest = new Array();
+    <c:forEach items="${liferaySensorsData}" var="row" varStatus="rowCounter">        
+        rowsTest[${rowCounter.count - 1}] = new Array(new Date(${row.timestamp}),'' ,'${row.pageCounter}', '${row.page}');
+    </c:forEach>
+    
+    
+    function drawVisualizationimeline<portlet:namespace/>(rows) {
+        data = new google.visualization.DataTable();
         data.addColumn('datetime', 'start');
         data.addColumn('datetime', 'end');
         data.addColumn('string', 'content');
         data.addColumn('string', 'group');
-
-        data.addRows([
-            <c:forEach items="${liferaySensorsData}" var="row">
-                [new Date(${row.timestamp}), ,'${row.pageCounter}', '${row.page}'],
-            </c:forEach>
-            [new Date(), ,undefined, undefined]
-        ]);
+        
+        if (rows == null){
+            data.addRows([
+                <c:forEach items="${liferaySensorsData}" var="row" varStatus="rowCounter">  
+                    <c:if test="${rowCounter.count > 1}" >,</c:if>
+                    [new Date(${row.timestamp}), ,'${row.pageCounter}', '${row.page}']
+                </c:forEach>
+            ]);
+        } else {
+            for (i = 0; i < rows.length; i++) {
+                data.addRows([            
+                    [rows[i][0],rows[i][1] ,rows[i][2], rows[i][3]]            
+                ]);
+            }
+        }
 
         var options = {"style": "box"};
 
@@ -43,8 +58,8 @@
 
         timeline.draw(data, options);
         timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1);
-    }
-
+    }  
+    
     function onrangechange() {
         var range = timeline.getVisibleChartRange();
         jQuery('#<portlet:namespace/>startDate').html('<fmt:message key="com.rcs.sense.admin.analytics.start.time"/>: <b> ' + dateFormat(range.start) + ' </b> ');
