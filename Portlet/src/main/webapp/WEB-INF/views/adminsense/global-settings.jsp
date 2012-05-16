@@ -57,14 +57,32 @@
     </p>
     
     <p>
-        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>"><fmt:message key="com.rcs.sense.general.keepalive.page.navigation"/>:</label>
+        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>"><fmt:message key="com.rcs.sense.general.keepalive.page.navigation"/>: </label>
         <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" class="required span2 number" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" value="${time_to_keep_alive_page_navigation}" />
     </p>
     
     <p>
-        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>"><fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>:</label>
-        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" class="span2" readonly="true" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" value="${default_sense_liferaysensordata_id}" />
-    </p>    
+        <fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>: 
+        <c:if test="${default_sense_liferaysensordata_id == null}" >
+            <fmt:message key="com.rcs.sense.general.default.sensesensors.not.yet.generated"/>
+        </c:if>
+        <c:if test="${default_sense_liferaysensordata_id != null}" >
+            <strong><c:out value="${default_sense_liferaysensordata_id}" escapeXml="false" /></strong>
+        </c:if>        
+        <%--<label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>"><fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>: </label>
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" class="span2 disabled" readonly="true" disabled="disabled" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID%>" value="${default_sense_liferaysensordata_id}" />--%>
+    </p>
+    <p>
+        <fmt:message key="com.rcs.sense.general.default.clientlocationsensordata.id"/>: 
+        <c:if test="${default_sense_clientlocationsensor_id == null}" >
+            <fmt:message key="com.rcs.sense.general.default.sensesensors.not.yet.generated"/>
+        </c:if>
+        <c:if test="${default_sense_clientlocationsensor_id != null}" >
+            <strong><c:out value="${default_sense_clientlocationsensor_id}" escapeXml="false" /></strong>
+        </c:if> 
+        <%--<label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID%>"><fmt:message key="com.rcs.sense.general.default.clientlocationsensordata.id"/>:</label>
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID%>" class="span2 disabled" readonly="true" disabled="disabled" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID%>" value="${default_sense_clientlocationsensor_id}" />--%>
+    </p>
      
     <p>
         <button type="button" class="btn" id="<portlet:namespace/>global-settings-button-save"><fmt:message key="com.rcs.sense.general.save"/></button>        

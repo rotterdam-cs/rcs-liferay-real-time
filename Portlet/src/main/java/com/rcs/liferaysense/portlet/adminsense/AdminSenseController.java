@@ -22,6 +22,7 @@ import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
 import com.rcs.liferaysense.common.ResourceBundleHelper;
+import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorsDataDTO;
 import com.rcs.liferaysense.portlet.common.Utils;
 import com.rcs.liferaysense.service.commonsense.*;
 import com.rcs.liferaysense.service.local.SenseConfigurationService;
@@ -56,8 +57,6 @@ public class AdminSenseController {
     private SenseUserService senseUserService;    
     @Autowired
     private SenseConfigurationService senseConfigurationService;
-    @Autowired
-    private UserLocalService userService;
     
     /**
      * Main Method
@@ -170,17 +169,11 @@ public class AdminSenseController {
         Date toDate = new Date();
         
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
-        CommonSenseSession commonSenseSession = getDefaultUserCommonSenseSession(groupId, companyId);
+        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
         if (commonSenseSession != null && serviceActionResult.isSuccess()) {
             String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();            
-            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
-                log.error("0 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
-            }
             liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
-            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
-                log.error("1 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
-            }
         }        
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
         modelAttrs.put("fromDate", fromDate);
@@ -212,7 +205,7 @@ public class AdminSenseController {
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         long groupId = utils.getGroupId(request);
         long companyId = utils.getcompanyId(request); 
-        CommonSenseSession commonSenseSession = getDefaultUserCommonSenseSession(groupId, companyId);
+        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
         
         Date fromDate = new Date(startTime);
         Date toDate = new Date(endTime);
@@ -308,13 +301,41 @@ public class AdminSenseController {
             liferaySensorDataId = String.valueOf(sensor.getId());
         }
         message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.liferaysensordata.verified", locale).replace("{0}", liferaySensorDataId);
-                
+        
+        //Create ClientLocation Sensor if it doesn't exists
+        List<Sensor> sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
+        if (sensorsClientLocation.isEmpty()) {
+            String name = CLIENTLOCATION_SENSOR_NAME;
+            String display_name = CLIENTLOCATION_SENSOR_DISPLAY_NAME;
+            String data_type = CLIENTLOCATION_SENSOR_DATA_TYPE;
+            String device_type = CLIENTLOCATION_SENSOR_DEVICE_TYPE;
+            String type = CLIENTLOCATION_SENSOR_TYPE;
+            String data_structure=CLIENTLOCATION_SENSOR_DATA_STRUCTURE;
+            LocalResponse sensorCreationResonse = senseAdminCreateSensor(commonAdminSenseSession, name, display_name, data_type, device_type, type, data_structure);
+            if (!sensorCreationResonse.isSuccess()) {
+                result.setSuccess(false);
+                result.setMessage(sensorCreationResonse.getMessage());
+                response.getWriter().write(utils.validationMessages(result));
+                return null;
+            } else {
+                sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
+                message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.created", locale);
+            }
+        }
+        String clientLocationSensorId = "";
+        for (Sensor sensor : sensorsClientLocation) {
+            clientLocationSensorId = String.valueOf(sensor.getId());
+        }
+        message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.verified", locale).replace("{0}", clientLocationSensorId);
+         
+        
         //CONFIGURATION OPTIONS
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER, auto_register);
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT, allow_change_account);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME, default_sense_username);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD, default_password);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID, liferaySensorDataId);
+        configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID, clientLocationSensorId);
         configurationOptions.put(ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION, time_to_keep_alive_page_navigation);
         
         //Save all configuration options
@@ -337,6 +358,48 @@ public class AdminSenseController {
         message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.saved", locale);
         result.setMessage(message);        
         response.getWriter().write(utils.validationMessages(result));
+        return null;
+    }
+    
+    
+    
+    /**
+     * AJAX
+     * Admin / Analytics / getAnalyticsRangeJSON (Detailed Network View JSON)
+     * @param startTime
+     * @param endTime
+     * @param clientlocation
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception 
+     */
+    @ResourceMapping(value = "getAnalyticsRangeJSON")
+    public ModelAndView getAnalyticsRangeJSONController(
+             Long startTime
+            ,Long endTime
+            ,ResourceRequest request
+            ,ResourceResponse response
+    ) throws Exception {        
+        ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long groupId = utils.getGroupId(request);
+        long companyId = utils.getcompanyId(request); 
+        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
+        
+        Date fromDate = new Date(startTime);
+        Date toDate = new Date(endTime);
+        String contextPath = request.getContextPath();
+        
+        HashMap<String, Object> modelAttrs = getModelAttrs(fromDate, toDate, commonSenseSession, themeDisplay, groupId, companyId, contextPath);
+        LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
+        List <LiferaySensorDataDTO> liferaySensorsData = (List <LiferaySensorDataDTO>) modelAttrs.get("liferaySensorsData");        
+        liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
+        List<PagesDto> pages = (List <PagesDto>) modelAttrs.get("pages");        
+        liferaySensorsDataDTO.setPages(pages);
+        
+        Gson gson = new Gson();        
+        String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        
+        response.getWriter().write(sensorJSON);
         return null;
     }
 
@@ -428,78 +491,7 @@ public class AdminSenseController {
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
         if (commonSenseSession != null && serviceActionResult.isSuccess()) {
             String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();
-            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
-                log.error("3 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
-            }
             liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
-            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
-                log.error("4 pageCounter (" + liferaySensorDataDTO.getPageId() + ") " + liferaySensorDataDTO.getPage() + ": " + liferaySensorDataDTO.getPageCounter());
-            }
-//            for (LiferaySensorDataDTO liferaySensorDataDTO : liferaySensorsData) {
-//
-//                String userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.visitorinformation", locale);
-//                userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
-//                userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-//                
-//                Long liferayUserId = liferaySensorDataDTO.getLiferayUserId();
-//                if (liferayUserId != 0) {
-//                    try {
-//                       User liferayUser = userService.getUserById(liferayUserId);
-//                        if (liferayUser != null) {
-//                            userInformation = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.analytics.details.userinformation", locale);
-//                            userInformation = userInformation.replaceAll("\\{name\\}", liferayUser.getFullName());                        
-//                            userInformation = userInformation.replaceAll("\\{email\\}", liferayUser.getEmailAddress());                        
-//                        } 
-//                    } catch (PortalException e) {
-//                        log.error("PortalException" + e);
-//                    } catch (SystemException e) {
-//                        log.error("SystemException" + e);
-//                    }
-//                    
-//                    userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
-//                    userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-//                    
-//                    liferaySensorDataDTO.setLiferayUserInformation(userInformation);
-//                } else {
-//                    liferayUserId = Long.parseLong(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
-//                }
-//                              
-//                
-//                //get time to keep alive navigation
-//                Calendar gcToRemove = GregorianCalendar.getInstance(); 
-//                gcToRemove.setTime(new Date());
-//                int timeAlive = DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
-//                ServiceActionResult<SenseConfiguration> serviceActionResultTimeConf = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION);
-//                if (serviceActionResultTimeConf.isSuccess()) {
-//                    timeAlive = Integer.parseInt(serviceActionResultTimeConf.getPayload().getPropertyValue());
-//                }                        
-//                gcToRemove.add(Calendar.MINUTE, -timeAlive);
-//                Long timeToRemove = gcToRemove.getTimeInMillis();
-//                for (PagesDto pagesDto : pages) {
-//                    if (pagesDto.getId() == liferaySensorDataDTO.getPageId()) {
-//                        for (PagesDto pagesDtoInt : pages) {
-//                            if (pagesDtoInt.isUserInPage(liferayUserId)){
-//                                pagesDtoInt.removeUsersInPage(liferayUserId);
-//                            }
-//                        }                        
-//                        gcToRemove.setTime(new Date(liferaySensorDataDTO.getTimestamp()));
-//                        //Add user to page only if he has entered to the page between the last n minutes                                               
-//                        if (liferaySensorDataDTO.getTimestamp() > timeToRemove) {
-//                            pagesDto.addUsersInPage(liferayUserId, userInformation);
-//                        }
-//                    }                    
-//                }               
-//            }            
-//            
-//            for (PagesDto pagesDto : pages) {
-//                HashMap<Long, String> usersInPage = pagesDto.getUsersInPage();
-//                StringBuilder sb = new StringBuilder();
-//                for (Map.Entry<Long,String> entry : usersInPage.entrySet()) {
-//                    sb.append(entry.getValue());
-//                    sb.append("<br />");
-//                }
-//                pagesDto.setUsersInPageInfo(sb.toString());
-//            }            
         }
         modelAttrs.put("pages", pages);
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
@@ -554,25 +546,6 @@ public class AdminSenseController {
     
     
     
-    /**
-     * Auxiliar Method
-     * @param groupId
-     * @param companyId
-     * @return 
-     */
-    private CommonSenseSession getDefaultUserCommonSenseSession (long groupId, long companyId) {
-        CommonSenseSession commonAdminSenseSession = null;
-        ServiceActionResult<SenseConfiguration> serviceActionResultPassword = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD);
-        if (serviceActionResultPassword.isSuccess()) {
-            ServiceActionResult<SenseConfiguration> serviceActionResultUsername = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME);
-            if (serviceActionResultUsername.isSuccess()) {
-                commonAdminSenseSession = commonSenseService.login(serviceActionResultUsername.getPayload().getPropertyValue(), serviceActionResultPassword.getPayload().getPropertyValue());
-            }
-        }        
-        return commonAdminSenseSession;
-    }
-    
-    
     
     /**
      * Auxiliar Method
@@ -615,7 +588,7 @@ public class AdminSenseController {
      * LiferaySensorData
      * http://api.sense-os.nl/sensors?sensor[name]=Liferay User Data&sensor[display_name]=Liferay User Data&sensor[data_type]=json&sensor[device_type]=LIFERAYUD&sensor[type]=2&sensor[data_structure]={"ip":"string", "pageId":"long", "previous_pageId":"long", "page":"string", "previous_page":"string", "userAgent":"string", "liferayUserId":"long"}
      * Liferay ClientLocation (Position) Sensor
-     * http://api.sense-os.nl/sensors?sensor[name]=position&sensor[display_name]=Liferay ClientLocation 1&sensor[data_type]=json&sensor[device_type]=LIFERAY&sensor[type]=2&sensor[data_structure]={"latitude":"float","longitude":"float","ip":"string","address":{"city":"string","region":"string","country":"string","country_code":"string"}}    
+     * http://api.sense-os.nl/sensors?sensor[name]=position&sensor[display_name]=Liferay Client Location Data&sensor[data_type]=json&sensor[device_type]=LIFERAYCLD&sensor[type]=2&sensor[data_structure]={"latitude":"float","longitude":"float","ip":"string","address":{"city":"string","region":"string","country":"string","country_code":"string"}}    
      */
     private LocalResponse senseAdminCreateSensor(CommonSenseSession commonSenseSession, String name, String display_name, String data_type, String device_type, String type, String data_structure) throws Exception {        
         LocalResponse result;       

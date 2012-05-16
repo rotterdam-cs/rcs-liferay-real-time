@@ -204,8 +204,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
             
             for (PagesDto pagesDto : pages) {
                 if (pagesDto.getId() == liferaySensorDataDTO.getPageId()) {
-                    pagesDto.setVisits(pagesDto.getVisits() + 1);
-                    log.error("adding visits to (" + pagesDto.getId() + ")" + pagesDto.getPage() + " = " + pagesDto.getVisits());
+                    pagesDto.setVisits(pagesDto.getVisits() + 1);                    
                     liferaySensorDataDTO.setPageCounter(pagesDto.getVisits());
                     for (PagesDto pagesDtoInt : pages) {
                         if (pagesDtoInt.isUserInPage(liferayUserId)){
@@ -512,15 +511,14 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
-    public LocalResponse addLiferaySensorData(CommonSenseSession session, int sensorId, LiferaySensorData liferaySensorData) {        
+    public LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorIdStr, LiferaySensorData liferaySensorData) {        
         Set<ConstraintViolation<LiferaySensorData>> violations = validator.validate(liferaySensorData);       
         LocalResponse result = new LocalResponse();
         if (!violations.isEmpty()) {
             return result;
         }
-        String sensorIdStr = Integer.toString(sensorId);
         Map<String, String> parameters = buildSessionParameters(session);        
-        if (parameters == null){
+        if (parameters == null) {
             logger.error("parameteres NULL");
             return null;
         }
@@ -560,13 +558,13 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
-    public LocalResponse addClientLocationData(CommonSenseSession session, int sensorId, ClientLocation clientLocationData) {        
+    public LocalResponse addClientLocationData(CommonSenseSession session, String sensorIdStr, ClientLocation clientLocationData) {        
         Set<ConstraintViolation<ClientLocation>> violations = validator.validate(clientLocationData);       
         LocalResponse result = new LocalResponse();
         if (!violations.isEmpty()) {
             return result;
         }
-        String sensorIdStr = Integer.toString(sensorId);
+        //String sensorIdStr = Integer.toString(sensorId);
         Map<String, String> parameters = buildSessionParameters(session);        
         if (parameters == null){
             logger.error("parameteres NULL");

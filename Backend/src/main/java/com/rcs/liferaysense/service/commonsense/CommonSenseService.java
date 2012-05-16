@@ -117,7 +117,7 @@ public interface CommonSenseService {
      * @param value
      * @return 
      */
-    LocalResponse addLiferaySensorData(CommonSenseSession session, int sensorId, LiferaySensorData value);
+    LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
     
     
     /**
@@ -127,5 +127,5 @@ public interface CommonSenseService {
      * @param value
      * @return 
      */
-    LocalResponse addClientLocationData(CommonSenseSession session, int sensorId, ClientLocation value);
+    LocalResponse addClientLocationData(CommonSenseSession session, String sensorId, ClientLocation value);
 }

@@ -14,25 +14,35 @@
 <portlet:defineObjects />
 <portlet:resourceURL var="storeLiferayDataURL" id="storeLiferayData" />
 
-<script type="text/javascript">    
-
-Liferay.on('portletReady', function(event) {            
-    if('_' + event.portletId + '_' == '<portlet:namespace/>') {            
-        jQuery(function () {
-            jQuery("#<portlet:namespace/>senseliferaystatus").html("Storing info in Sense...");
-            jQuery.get("${storeLiferayDataURL}"
-                ,{
-                    "clientlocation" : jQuery.toJSON(google.loader.ClientLocation)
-                }
-                ,function(returned_data) {
-                    jQuery("#<portlet:namespace/>senseliferaystatus").removeClass("label-important").addClass("label-success");
-                    jQuery("#<portlet:namespace/>senseliferaystatus").html("");
-                }
-            );
-            
-        });            
+<script type="text/javascript">
+    <%--
+    var coords;
+    function displayLocation(loc) {
+        coords = loc.coords;
     }
-});
-</script>
+    function getLocation() {
+        navigator.geolocation.getCurrentPosition(displayLocation);
+        return coords;
+    }
+    --%>
+    Liferay.on('portletReady', function(event) {            
+        if('_' + event.portletId + '_' == '<portlet:namespace/>') {
+            jQuery(function () {
+                <%--jQuery("#<portlet:namespace/>senseliferaystatus").html("Storing data in Sense...");--%>
+                jQuery.get("${storeLiferayDataURL}"
+                    ,{
+                        "clientlocation" : jQuery.toJSON(google.loader.ClientLocation)
+                    }
+                    ,function(returned_data) {
+                        <%--jQuery("#<portlet:namespace/>senseliferaystatus").removeClass("label-important").addClass("label-success");
+                        jQuery("#<portlet:namespace/>senseliferaystatus").html("");--%>
+                    }
+                );
 
+            });            
+        }
+    });
+</script>
+<%--
 <div id="<portlet:namespace/>senseliferaystatus" style="text-align: left; width: 150px;"></div>
+--%>

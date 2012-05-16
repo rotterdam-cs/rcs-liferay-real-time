@@ -8,10 +8,13 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalService;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.rcs.common.service.ServiceActionResult;
+import com.rcs.liferaysense.entities.SenseConfiguration;
 import com.rcs.liferaysense.entities.SenseUser;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.service.commonsense.CommonSenseService;
 import com.rcs.liferaysense.service.commonsense.CommonSenseSession;
+import com.rcs.liferaysense.service.local.SenseConfigurationService;
 import com.rcs.liferaysense.service.local.SenseUserService;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static com.rcs.liferaysense.common.Constants.*;
 
 /**
  *
@@ -39,7 +43,9 @@ public class Utils {
     @Autowired
     private CommonSenseService commonSenseService;
     @Autowired
-    private WebParameters webParams;
+    private WebParameters webParams;    
+    @Autowired
+    private SenseConfigurationService senseConfigurationService;
 
 
     /**
@@ -236,6 +242,24 @@ public class Utils {
             commonSenseService.logout(getSenseSession(request));
             httpSession.setAttribute(webParams.getSenseSessionVariableName(), null);
         }
+    }
+    
+    
+    /**
+     * @param groupId
+     * @param companyId
+     * @return 
+     */
+    public CommonSenseSession getDefaultUserCommonSenseSession (long groupId, long companyId) throws SystemException, PortalException {
+        CommonSenseSession commonAdminSenseSession = null;
+        ServiceActionResult<SenseConfiguration> serviceActionResultPassword = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD);
+        if (serviceActionResultPassword.isSuccess()) {
+            ServiceActionResult<SenseConfiguration> serviceActionResultUsername = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME);
+            if (serviceActionResultUsername.isSuccess()) {
+                commonAdminSenseSession = commonSenseService.login(serviceActionResultUsername.getPayload().getPropertyValue(), serviceActionResultPassword.getPayload().getPropertyValue());
+            }
+        }        
+        return commonAdminSenseSession;
     }
 
     

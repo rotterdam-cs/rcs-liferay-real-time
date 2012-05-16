@@ -122,6 +122,4 @@ public class LiferaySensorDataDTO implements Serializable {
         this.liferayUserId = liferayUserId;
     }
     
-    
-    
 }

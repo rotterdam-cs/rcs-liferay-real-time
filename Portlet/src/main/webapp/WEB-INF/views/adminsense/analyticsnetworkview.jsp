@@ -13,12 +13,15 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
 
+<portlet:resourceURL var="getAnalyticsRangeJSONURL" id="getAnalyticsRangeJSON" />
+
 <script type="text/javascript">
     var nodesTable = null;
     var linksTable = null;
     var network = null;
+    var second;
 
-    function drawVisualization<portlet:namespace/>() {
+    function drawVisualization<portlet:namespace/>(pages, sensordata) {
         nodesTable = new google.visualization.DataTable();
         nodesTable.addColumn('number', 'id');
         nodesTable.addColumn('string', 'text');
@@ -37,17 +40,37 @@
             ,undefined
             ,undefined
         ]);
-        <c:forEach items="${pages}" var="row">
-            nodesTable.addRow([
-                     ${row.id}
-                    ,'${row.page}<c:if test="${row.currentvisitors > 0}" > \n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ${row.currentvisitors}</c:if>'
+        
+        if (pages == null) {
+            <c:forEach items="${pages}" var="row">
+                nodesTable.addRow([
+                    ${row.id}
+                    ,'${row.page} [ ${row.visits} ] <c:if test="${row.currentvisitors > 0}" > \n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ${row.currentvisitors}</c:if>'
                     ,'<c:if test="${row.id == 1}" >circle</c:if><c:if test="${row.id != 1}" >rect</c:if>'
                     ,<c:if test="${row.current == true}" >'current'</c:if><c:if test="${row.current != true}" >'common'</c:if>
                     ,'<a class="various" data-fancybox-type="iframe" href="${row.url}" ><fmt:message key="com.rcs.sense.admin.analytics.page.preview"/></a><br /><fmt:message key="com.rcs.sense.admin.analytics.total.views"/>: ${row.visits}<br />${row.usersInPageInfo}'
                     ,undefined
                     ,undefined
                 ]);
-        </c:forEach>
+            </c:forEach>
+        } else {
+            jQuery.each(pages, function(index, row) {
+                var id = row.id;
+                var text = (row.currentvisitors > 0) ? row.page + ' [ ' + row.visits + ' ]\n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ' + row.currentvisitors : row.page + "";
+                var style = (row.id == 1) ? "circle" : "rect";
+                var group = (row.current == true) ? "current" : (row.current != true) ? "common" : "";
+                var title = '<a class="various" data-fancybox-type="iframe" href="' + row.url + '" ><fmt:message key="com.rcs.sense.admin.analytics.page.preview"/></a><br /><fmt:message key="com.rcs.sense.admin.analytics.total.views"/>: ' + row.visits + '<br />' + row.UsersInPageInfo + '';               
+                nodesTable.addRow([
+                     id
+                    ,text
+                    ,style
+                    ,group
+                    ,title
+                    ,undefined
+                    ,undefined
+                ]);                
+            });
+        }
 
         linksTable = new google.visualization.DataTable();
         linksTable.addColumn('number', 'id');
@@ -61,27 +84,49 @@
 
         var total = 0;
         var linksAdded = new Array();
-        <c:forEach items="${liferaySensorsData}" var="row">
-            var packageFrom = ${row.previous_pageId};
-            var packageTo = ${row.pageId};
-            if (packageFrom == packageTo) { packageFrom = 0; }
-            if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array(); }
-            if (linksAdded[packageFrom][packageTo] !== true){
-                linksAdded[packageFrom][packageTo] = true;
-                linksTable.addRow([
-                     total
-                    ,packageFrom
-                    ,packageTo
-                    ,undefined
-                    ,1
-                    ,150
-                    ,undefined
-                    ,undefined
-                ]);        
-            }
-            total ++;
-        </c:forEach> 
-
+        if (sensordata == null) {
+            <c:forEach items="${liferaySensorsData}" var="row">
+                var packageFrom = ${row.previous_pageId};
+                var packageTo = ${row.pageId};
+                if (packageFrom == packageTo) { packageFrom = 0; }
+                if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array(); }
+                if (linksAdded[packageFrom][packageTo] !== true){
+                    linksAdded[packageFrom][packageTo] = true;
+                    linksTable.addRow([
+                        total
+                        ,packageFrom
+                        ,packageTo
+                        ,undefined
+                        ,1
+                        ,150
+                        ,undefined
+                        ,undefined
+                    ]);        
+                }
+                total ++;
+            </c:forEach> 
+        } else {
+            jQuery.each(sensordata, function(index, row) {
+                var packageFrom = row.previous_pageId;
+                var packageTo = row.pageId;
+                if (packageFrom == packageTo) { packageFrom = 0; }
+                if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array(); }
+                if (linksAdded[packageFrom][packageTo] !== true){
+                    linksAdded[packageFrom][packageTo] = true;
+                    linksTable.addRow([
+                        total
+                        ,packageFrom
+                        ,packageTo
+                        ,undefined
+                        ,1
+                        ,150
+                        ,undefined
+                        ,undefined
+                    ]);        
+                }
+                total ++;
+            });
+        }
         packagesTable = new google.visualization.DataTable();
         packagesTable.addColumn('number', 'id');
         packagesTable.addColumn('number', 'from');
@@ -97,42 +142,72 @@
         var n = 0;
         var action = 'create';
         var color = undefined;
-        var stepCount = 10;
-        var second = ${stepSeconds};
-        <c:forEach items="${liferaySensorsData}" var="row">
-            var t = new Date(${row.timestamp});          
-            var title = 'node ' + n;
-            var duration = undefined;
-            var packageFrom = ${row.previous_pageId};
-            var packageTo = ${row.pageId};
-            if (packageFrom == packageTo) { packageFrom = 0; }
-            var c = 0;
-            while (c < stepCount + 1) {
-                    var progress = c / stepCount;
-                    var action = 'create';
-                    var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
-                    packagesTable.addRow([
-                         n
-                        ,packageFrom
-                        ,packageTo
-                        ,title
-                        ,progress
-                        ,action
-                        ,new Date(t)
-                        ,duration
-                        ,'image'
-                        ,'${pageContext.request.contextPath}/img/${row.browser}.png'
-                    ]);                
-                    c += 1;
-                    t = new Date(t.getTime() + second);
-            }
-            packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);
-            n++;
-        </c:forEach>
-
+        var stepCount = 20;
+        second = ${stepSeconds};
+        if (sensordata == null) {
+            <c:forEach items="${liferaySensorsData}" var="row">
+                var t = new Date(${row.timestamp});
+                var duration = undefined;
+                var packageFrom = ${row.previous_pageId};
+                var packageTo = ${row.pageId};
+                if (packageFrom == packageTo) { packageFrom = 0; }
+                var c = 0;
+                while (c < stepCount + 1) {
+                        var progress = c / stepCount;
+                        var action = 'create';
+                        var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
+                        packagesTable.addRow([
+                             n
+                            ,packageFrom
+                            ,packageTo
+                            ,title
+                            ,progress
+                            ,action
+                            ,new Date(t.getTime())
+                            ,duration
+                            ,'image'
+                            ,'${pageContext.request.contextPath}/img/${row.browser}.png'
+                        ]);                
+                        c += 1;
+                        t = new Date(t.getTime() + second);
+                }
+                packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);                
+                n++;
+            </c:forEach>
+        } else {
+            jQuery.each(sensordata, function(index, row) {
+                var t = new Date(row.timestamp);
+                var duration = undefined;
+                var packageFrom = row.previous_pageId;
+                var packageTo = row.pageId;
+                if (packageFrom == packageTo) { packageFrom = 0; }
+                var c = 0;
+                while (c < stepCount + 1) {
+                        var progress = c / stepCount;
+                        var action = 'create';
+                        var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ' + row.browser;                
+                        packagesTable.addRow([
+                             n
+                            ,packageFrom
+                            ,packageTo
+                            ,title
+                            ,progress
+                            ,action
+                            ,new Date(t)
+                            ,duration
+                            ,'image'
+                            ,'${pageContext.request.contextPath}/img/' + row.browser + '.png'
+                        ]);                
+                        c += 1;
+                        t = new Date(t.getTime() + second);
+                }
+                packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);
+                n++;
+            });
+        }
         options = {
             height: '550px'        
-            ,stabilize: false
+            ,stabilize: true
             ,'groups': {            
                 'current': {
                     'backgroundColor': 'blue'
@@ -147,6 +222,23 @@
         network = new links.Network(document.getElementById('<portlet:namespace/>mynetwork'));
         network.draw(nodesTable, linksTable, packagesTable, options);
         setTimeout(startAnimation<portlet:namespace/>, 1000);
+    }
+    
+    function reloadAnalyticsData() {
+        var newStartDate = new Date(startTime);
+        var newEndDate   = new Date(endTime);
+        var nowDate   = new Date();
+        jQuery.get("${getAnalyticsRangeJSONURL}"
+            ,{
+                "startTime" : newStartDate.getTime()
+                ,"endTimeOld" : newEndDate.getTime()
+                ,"endTime" : nowDate.getTime()
+            }
+            ,function(returned_data) {
+                rows = jQuery.parseJSON(returned_data);
+                drawVisualization<portlet:namespace/>(rows.pages, rows.liferaySensorsData);                
+            }
+        );
     }
     
     function startAnimation<portlet:namespace/>() {
