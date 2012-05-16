@@ -213,6 +213,18 @@ public class AdminSenseController {
         HashMap<String, Object> modelAttrs = getModelAttrs(fromDate, toDate, commonSenseSession, themeDisplay, groupId, companyId, contextPath);
         long stepSeconds = (endTime - startTime) / NETWORKMAP_ZOOM_ADJUST_FACTOR;
         modelAttrs.put("stepSeconds", stepSeconds);
+        
+        int autoReloadTime = DEFAULT_NETWORKMAP_AUTORELOAD_TIME;
+        ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME);
+        if (commonSenseSession != null && serviceActionResult.isSuccess()) {
+            try {
+                autoReloadTime = Integer.parseInt(serviceActionResult.getPayload().getPropertyValue());
+            } catch (NumberFormatException e) {
+                log.error("Can not parse autoreload time " + e);
+            }            
+        }
+        
+        modelAttrs.put("autoReloadTime", autoReloadTime);
         return new ModelAndView("adminsense/analyticsnetworkview", modelAttrs);
     }
     
@@ -234,7 +246,8 @@ public class AdminSenseController {
             ,String allow_change_account
             ,String default_sense_username
             ,String default_sense_pass  
-            ,String time_to_keep_alive_page_navigation          
+            ,String time_to_keep_alive_page_navigation
+            ,String network_autoreload_time
             ,ResourceRequest request
             ,ResourceResponse response
     ) throws Exception {
@@ -337,6 +350,8 @@ public class AdminSenseController {
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID, liferaySensorDataId);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID, clientLocationSensorId);
         configurationOptions.put(ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION, time_to_keep_alive_page_navigation);
+        configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME, network_autoreload_time);
+        
         
         //Save all configuration options
         for (Map.Entry<String, String> entry : configurationOptions.entrySet()) {           
@@ -396,6 +411,9 @@ public class AdminSenseController {
         liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
         List<PagesDto> pages = (List <PagesDto>) modelAttrs.get("pages");        
         liferaySensorsDataDTO.setPages(pages);
+        
+        long stepSeconds = (endTime - startTime) / NETWORKMAP_ZOOM_ADJUST_FACTOR;
+        liferaySensorsDataDTO.setStepSeconds(stepSeconds);
         
         Gson gson = new Gson();        
         String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        

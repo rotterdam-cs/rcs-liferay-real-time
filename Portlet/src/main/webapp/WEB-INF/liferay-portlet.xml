@@ -34,11 +34,13 @@
     <portlet>
         <portlet-name>SenseLiferaySensor</portlet-name>
         <icon>/icon.png</icon>
-        <instanceable>true</instanceable>        
+        <instanceable>true</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>        
         <header-portlet-javascript>/js/jquery/jquery-1.7.1.min.js</header-portlet-javascript>
         <header-portlet-javascript>https://www.google.com/jsapi</header-portlet-javascript>
         <footer-portlet-javascript>/js/jquery.json-2.3/jquery.json-2.3.min.js</footer-portlet-javascript> 
-        <footer-portlet-javascript>/js/responseHandler.js</footer-portlet-javascript>        
+        <footer-portlet-javascript>/js/responseHandler.js</footer-portlet-javascript>   
+        <css-class-wrapper>senseliferaysensor</css-class-wrapper>     
     </portlet>
     
     <role-mapper>

@@ -62,6 +62,11 @@
     </p>
     
     <p>
+        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>"><fmt:message key="com.rcs.sense.general.autoreload.networkmap.time"/>: </label>
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" class="required span2 number" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" value="${network_autoreload_time}" />
+    </p>
+    
+    <p>
         <fmt:message key="com.rcs.sense.general.default.liferaysensordata.id"/>: 
         <c:if test="${default_sense_liferaysensordata_id == null}" >
             <fmt:message key="com.rcs.sense.general.default.sensesensors.not.yet.generated"/>

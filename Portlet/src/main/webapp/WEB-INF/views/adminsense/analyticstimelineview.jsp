@@ -19,7 +19,8 @@
     var endTime = "${toDate}";
     var loading = false;
     var data;
-    var timelne;    
+    var timelne;
+    var runningProcess = null;
     
     function drawVisualizationimeline<portlet:namespace/>() {
         data = new google.visualization.DataTable();
@@ -65,7 +66,7 @@
             }
             ,function() {            
                 jQuery("#<portlet:namespace/>mynetworkcontainer").unmask();
-                loading = false;
+                loading = false;                
             }
         );
     }
@@ -93,7 +94,7 @@
     jQuery(function () {
         jQuery("#<portlet:namespace/>mynetworkcontainer").mask('<fmt:message key="com.rcs.sense.general.mask.loading.text"/>');
         drawVisualizationimeline<portlet:namespace/>();
-        onrangechangeddelayed();         
+        onrangechangeddelayed();        
     });
 </script>
 

@@ -28,14 +28,13 @@
     Liferay.on('portletReady', function(event) {            
         if('_' + event.portletId + '_' == '<portlet:namespace/>') {
             jQuery(function () {
-                <%--jQuery("#<portlet:namespace/>senseliferaystatus").html("Storing data in Sense...");--%>
+                jQuery("#<portlet:namespace/>senseliferaystatus").html("");
                 jQuery.get("${storeLiferayDataURL}"
                     ,{
                         "clientlocation" : jQuery.toJSON(google.loader.ClientLocation)
                     }
                     ,function(returned_data) {
-                        <%--jQuery("#<portlet:namespace/>senseliferaystatus").removeClass("label-important").addClass("label-success");
-                        jQuery("#<portlet:namespace/>senseliferaystatus").html("");--%>
+                        jQuery("#<portlet:namespace/>senseliferaystatus").html("");
                     }
                 );
 
@@ -43,6 +42,4 @@
         }
     });
 </script>
-<%--
-<div id="<portlet:namespace/>senseliferaystatus" style="text-align: left; width: 150px;"></div>
---%>
+<div id="<portlet:namespace/>senseliferaystatus" style="text-align: left;"></div>

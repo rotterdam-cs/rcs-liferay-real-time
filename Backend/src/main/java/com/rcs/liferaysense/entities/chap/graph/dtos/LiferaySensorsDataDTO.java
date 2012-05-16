@@ -14,6 +14,7 @@ public class LiferaySensorsDataDTO  implements Serializable {
     
     private List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
     private List<PagesDto> pages = new ArrayList<PagesDto>();
+    private long stepSeconds;
 
     public List<LiferaySensorDataDTO> getLiferaySensorsData() {
         return liferaySensorsData;
@@ -30,5 +31,12 @@ public class LiferaySensorsDataDTO  implements Serializable {
     public void setPages(List<PagesDto> pages) {
         this.pages = pages;
     }
-        
+
+    public long getStepSeconds() {
+        return stepSeconds;
+    }
+
+    public void setStepSeconds(long stepSeconds) {
+        this.stepSeconds = stepSeconds;
+    }
 }
