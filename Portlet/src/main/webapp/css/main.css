@@ -33,6 +33,10 @@
 .sense-graphic-daterange{
     float: right;
 }
+.sense-admin-range{
+    float: left;
+    margin-right: 20px;
+}
 .senseliferaysensor .portlet-borderless-container {
     min-height: 0;
 }

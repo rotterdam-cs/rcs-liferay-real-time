@@ -31,22 +31,27 @@
     </div>
 </div>
 <div class="controls">
-    <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_HOUR.getId()%>" checked>
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.hour"/>
-    </label>
-    <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_DAY.getId()%>">
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.day"/>
-    </label>
-    <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_WEEK.getId()%>">
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.week"/>
-    </label>
-    <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_MONTH.getId()%>">
-        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.month"/>
-    </label>
+    <div class="sense-admin-range">
+        <label class="radio">
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_HOUR.getId()%>" checked>
+            <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.hour"/>
+        </label>
+        <label class="radio">
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_DAY.getId()%>">
+            <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.day"/>
+        </label>
+    </div>
+    <div class="sense-admin-range">
+        <label class="radio">
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_WEEK.getId()%>">
+            <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.week"/>
+        </label>
+        <label class="radio">
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_MONTH.getId()%>">
+            <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.month"/>
+        </label>
+    </div>
+    <div style="clear: both;"></div>
 </div>
 
 <p></p>

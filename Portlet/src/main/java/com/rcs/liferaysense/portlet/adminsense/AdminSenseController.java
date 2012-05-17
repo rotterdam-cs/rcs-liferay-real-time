@@ -11,18 +11,17 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.UserLocalService;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.rcs.common.service.ServiceActionResult;
 import static com.rcs.liferaysense.common.Constants.*;
+import com.rcs.liferaysense.common.ResourceBundleHelper;
 import com.rcs.liferaysense.entities.SenseConfiguration;
 import com.rcs.liferaysense.entities.SenseUser;
 import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
+import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorsDataDTO;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
-import com.rcs.liferaysense.common.ResourceBundleHelper;
-import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorsDataDTO;
 import com.rcs.liferaysense.entities.enums.TimelineRange;
 import com.rcs.liferaysense.portlet.common.Utils;
 import com.rcs.liferaysense.service.commonsense.*;
@@ -30,6 +29,8 @@ import com.rcs.liferaysense.service.local.SenseConfigurationService;
 import com.rcs.liferaysense.service.local.SenseUserService;
 import com.rcs.liferaysense.utils.HashUtils;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.ResourceRequest;
@@ -42,7 +43,6 @@ import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 
 /**
- *
  * @author Prj.M@x <pablo.rendon@rotterdam-cs.com>
  */
 @Controller
@@ -75,8 +75,6 @@ public class AdminSenseController {
         return new ModelAndView("adminsense/view", modelAttrs); 
     }    
 
-    
-    
     /*
      ********************************************** ResourceMapping AJAX Methods
     */
@@ -123,8 +121,6 @@ public class AdminSenseController {
         return new ModelAndView("adminsense/" + section, modelAttrs);
     }
     
-    
-    
     /**
      * AJAX
      * Admin / Analytics / getAnalyticsBigRange
@@ -147,28 +143,10 @@ public class AdminSenseController {
         long companyId = utils.getcompanyId(request);   
         HashMap<String, Object> modelAttrs = new HashMap<String, Object>();        
         Locale locale = themeDisplay.getLocale();
-        String contextPath = request.getContextPath();
-        
-        //if we need to get information from other groups we need to change this
-        List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(themeDisplay.getScopeGroupId(), false);      
-        List<PagesDto> pages = getPages(layouts, locale);
-        
-//        Calendar gc = GregorianCalendar.getInstance();            
-//        gc.setTime(new Date());
-//        switch(range) {
-//            case 1: gc.add(Calendar.MONTH, -1);
-//                break;
-//            case 2: gc.add(Calendar.DAY_OF_YEAR, -7);
-//                break;
-//            case 3: gc.add(Calendar.HOUR, -24);
-//                break;
-//            case 4: gc.add(Calendar.HOUR, -1);
-//                break;
-//            default:
-//                gc.add(Calendar.HOUR, -1);
-//                break;
-//        }        
-        Date fromDate = TimelineRange.get(range);//gc.getTime();            
+        String contextPath = request.getContextPath();           
+        List<PagesDto> pages = getPages(themeDisplay, locale);
+           
+        Date fromDate = TimelineRange.get(range);        
         Date toDate = new Date();
         
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
@@ -184,7 +162,49 @@ public class AdminSenseController {
         return new ModelAndView("adminsense/analyticstimelineview", modelAttrs);
     }
     
-    
+    /**
+     * AJAX
+     * Admin / Analytics / getAnalyticsBigRangeJSON
+     * @param range
+     * @param clientlocation
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception 
+     */
+    @ResourceMapping(value = "getAnalyticsBigRangeJSON")
+    public ModelAndView getAnalyticsBigRangeJSONController(
+             int range
+            ,String clientlocation
+            ,ResourceRequest request
+            ,ResourceResponse response
+    ) throws Exception {        
+        ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long groupId = utils.getGroupId(request);
+        long companyId = utils.getcompanyId(request);          
+        Locale locale = themeDisplay.getLocale();
+        String contextPath = request.getContextPath();           
+        List<PagesDto> pages = getPages(themeDisplay, locale);
+           
+        Date fromDate = TimelineRange.get(range);        
+        Date toDate = new Date();
+        
+        List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
+        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
+        ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
+        if (commonSenseSession != null && serviceActionResult.isSuccess()) {
+            String liferaySensorId = serviceActionResult.getPayload().getPropertyValue();            
+            liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
+        }
+        
+        LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
+        liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
+        
+        Gson gson = new Gson();        
+        String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        
+        response.getWriter().write(sensorJSON);
+        return null;
+    }
     
     /**
      * AJAX
@@ -230,9 +250,7 @@ public class AdminSenseController {
         modelAttrs.put("autoReloadTime", autoReloadTime);
         return new ModelAndView("adminsense/analyticsnetworkview", modelAttrs);
     }
-    
-    
-    
+       
     /**
      * AJAX
      * Admin / Global Settings / senseAdminSaveGlobalSettings
@@ -344,7 +362,6 @@ public class AdminSenseController {
         }
         message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.verified", locale).replace("{0}", clientLocationSensorId);
          
-        
         //CONFIGURATION OPTIONS
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER, auto_register);
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT, allow_change_account);
@@ -354,8 +371,7 @@ public class AdminSenseController {
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID, clientLocationSensorId);
         configurationOptions.put(ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION, time_to_keep_alive_page_navigation);
         configurationOptions.put(ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME, network_autoreload_time);
-        
-        
+          
         //Save all configuration options
         for (Map.Entry<String, String> entry : configurationOptions.entrySet()) {           
             ServiceActionResult<SenseConfiguration> resultupdate = updateProperty(groupId, companyId, entry.getKey(), entry.getValue());
@@ -378,9 +394,7 @@ public class AdminSenseController {
         response.getWriter().write(utils.validationMessages(result));
         return null;
     }
-    
-    
-    
+        
     /**
      * AJAX
      * Admin / Analytics / getAnalyticsRangeJSON (Detailed Network View JSON)
@@ -424,10 +438,8 @@ public class AdminSenseController {
         return null;
     }
 
-    
-    
     /*
-     ********************************************** ResourceMapping AJAX Methods
+     ********************************************************** Auxiliar Methods
     */
     
     /**
@@ -462,9 +474,7 @@ public class AdminSenseController {
         modelAttrs.put("senseUserRegistered", senseUserRegistered);        
         return modelAttrs;
     }
-    
-    
-    
+      
     /**
      * Auxiliar Method
      * Section Global Settings first AJAX call
@@ -491,8 +501,6 @@ public class AdminSenseController {
         return modelAttrs;
     }
     
-    
-    
     /**
      * Auxiliar Method
      * @param commonSenseSession
@@ -505,9 +513,8 @@ public class AdminSenseController {
         HashMap<String, Object> modelAttrs = new HashMap<String, Object>();
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
         Locale locale = themeDisplay.getLocale();
-        
-        List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(themeDisplay.getScopeGroupId(), false);   
-        List<PagesDto> pages = getPages(layouts, locale);
+          
+        List<PagesDto> pages = getPages(themeDisplay, locale);
                 
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
         if (commonSenseSession != null && serviceActionResult.isSuccess()) {
@@ -518,8 +525,6 @@ public class AdminSenseController {
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
         return modelAttrs;
     }
-      
-    
     
     /**
      * Auxiliar Method
@@ -527,20 +532,24 @@ public class AdminSenseController {
      * @param locale
      * @return 
      */
-    private List<PagesDto> getPages(List<Layout> layouts, Locale locale){
+    private List<PagesDto> getPages(ThemeDisplay themeDisplay, Locale locale) {
         List<PagesDto> pages = new ArrayList<PagesDto>();
-        for (Layout layout : layouts) {PagesDto page = new PagesDto();
-            page.setId(layout.getLayoutId());
-            page.setPage(layout.getName(locale));
-            page.setUrl(layout.getFriendlyURL());
-            page.setVisits(0);         
-            pages.add(page);
+        try {
+            //if we need to get information from other groups we need to change this
+            List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(themeDisplay.getScopeGroupId(), false);             
+            for (Layout layout : layouts) {PagesDto page = new PagesDto();
+                page.setId(layout.getLayoutId());
+                page.setPage(layout.getName(locale));
+                page.setUrl(layout.getFriendlyURL());
+                page.setVisits(0);         
+                pages.add(page);
+            }            
+        } catch (SystemException ex) {
+            log.error("Error Getting Layouts (Pages) " + ex);
         }
         return pages;
     }
-    
-    
-    
+   
     /**
      * Auxiliar Method
      * @param groupId
@@ -564,9 +573,6 @@ public class AdminSenseController {
         ServiceActionResult<SenseConfiguration> resultupdate = senseConfigurationService.update(senseConfiguration);
         return resultupdate;
     }
-    
-    
-    
     
     /**
      * Auxiliar Method
@@ -598,8 +604,6 @@ public class AdminSenseController {
         return result;
     }
     
-    
-    
     /**
      * Auxiliar Method
      * @param commonSenseSession
@@ -623,7 +627,5 @@ public class AdminSenseController {
                 ,0);        
         result = commonSenseService.createSensor(commonSenseSession, commonSenseSensorData);        
         return result;
-    }   
-     
-    
+    }
 }

@@ -13,6 +13,7 @@
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
 <portlet:resourceURL var="getAnalyticsRangeURL" id="getAnalyticsRange" />
+<portlet:resourceURL var="getAnalyticsBigRangeJSONURL" id="getAnalyticsBigRangeJSON" />
 
 <script type="text/javascript">
     var startTime = "${fromDate}";
@@ -22,19 +23,25 @@
     var timelne;
     var runningProcess = null;
     
-    function drawVisualizationimeline<portlet:namespace/>() {
+    function drawVisualizationimeline<portlet:namespace/>(sensordata) {
         data = new google.visualization.DataTable();
         data.addColumn('datetime', 'start');
         data.addColumn('datetime', 'end');
         data.addColumn('string', 'content');
         data.addColumn('string', 'group');        
         
-        data.addRows([
-            <c:forEach items="${liferaySensorsData}" var="row" varStatus="rowCounter">  
-                <c:if test="${rowCounter.count > 1}" >,</c:if>
-                [new Date(${row.timestamp}), ,'${row.pageCounter}', '${row.page}']
-            </c:forEach>
-        ]);        
+        if (sensordata == null) {
+            data.addRows([
+                <c:forEach items="${liferaySensorsData}" var="row" varStatus="rowCounter">  
+                    <c:if test="${rowCounter.count > 1}" >,</c:if>
+                    [new Date(${row.timestamp}), ,'${row.pageCounter}', '${row.page}']
+                </c:forEach>
+            ]);
+        } else {
+            jQuery.each(sensordata, function(index, row) {
+                data.addRows([[new Date(row.timestamp),undefined ,"" + row.pageCounter,row.page]]);
+            });
+        }
 
         var options = {"style": "box"};
 
@@ -45,8 +52,20 @@
         google.visualization.events.addListener(timeline, 'rangechanged', onrangechanged);      
 
         timeline.draw(data, options);
-        timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1);
+        //timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1);
     }  
+    
+    function reloadTimeline<portlet:namespace/>() {
+        jQuery.get("${getAnalyticsBigRangeJSONURL}"
+            ,{
+                "range" : jQuery('input:radio[name=<portlet:namespace/>range]:checked').val()
+            }
+            ,function(returned_data) {
+                rows = jQuery.parseJSON(returned_data);
+                drawVisualizationimeline<portlet:namespace/>(rows.liferaySensorsData);
+            }
+        );
+    }
     
     function onrangechange() {
         var range = timeline.getVisibleChartRange();

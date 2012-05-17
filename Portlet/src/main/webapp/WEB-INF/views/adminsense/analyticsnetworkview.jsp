@@ -250,6 +250,7 @@
                 ,function(returned_data) {
                     rows = jQuery.parseJSON(returned_data);
                     drawVisualization<portlet:namespace/>(rows.pages, rows.liferaySensorsData, rows.stepSeconds, network.slider.value);
+                    reloadTimeline<portlet:namespace/>();
                 }
             );
         }
