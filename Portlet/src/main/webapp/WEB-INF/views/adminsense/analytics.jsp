@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<%@page contentType="text/html" pageEncoding="UTF-8" import="com.rcs.liferaysense.common.Constants"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" 
+    import="com.rcs.liferaysense.common.Constants"
+    import="com.rcs.liferaysense.entities.enums.TimelineRange"
+%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <%@taglib prefix="aui" uri="http://liferay.com/tld/aui" %>
@@ -27,18 +30,21 @@
         <a href="#" class="btn" data-dismiss="modal"><fmt:message key="com.rcs.sense.general.close"/></a>
     </div>
 </div>
-    
 <div class="controls">
     <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="3" checked>
+        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_HOUR.getId()%>" checked>
+        <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.hour"/>
+    </label>
+    <label class="radio">
+        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_DAY.getId()%>">
         <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.day"/>
     </label>
     <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="2">
+        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_WEEK.getId()%>">
         <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.week"/>
     </label>
     <label class="radio">
-        <input type="radio" name="<portlet:namespace/>range" value="1">
+        <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_MONTH.getId()%>">
         <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.month"/>
     </label>
 </div>

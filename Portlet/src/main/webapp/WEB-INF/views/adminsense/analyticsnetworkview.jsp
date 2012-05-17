@@ -252,7 +252,8 @@
                     drawVisualization<portlet:namespace/>(rows.pages, rows.liferaySensorsData, rows.stepSeconds, network.slider.value);
                 }
             );
-        }        
+        }
+        clearTimeout(runningProcess);        
         runningProcess = setTimeout("reloadAnalyticsData<portlet:namespace/>()", ${autoReloadTime * 1000});        
     }    
     

@@ -23,6 +23,7 @@ import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
 import com.rcs.liferaysense.common.ResourceBundleHelper;
 import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorsDataDTO;
+import com.rcs.liferaysense.entities.enums.TimelineRange;
 import com.rcs.liferaysense.portlet.common.Utils;
 import com.rcs.liferaysense.service.commonsense.*;
 import com.rcs.liferaysense.service.local.SenseConfigurationService;
@@ -152,20 +153,22 @@ public class AdminSenseController {
         List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(themeDisplay.getScopeGroupId(), false);      
         List<PagesDto> pages = getPages(layouts, locale);
         
-        Calendar gc = GregorianCalendar.getInstance();            
-        gc.setTime(new Date());
-        switch(range) {
-            case 1: gc.add(Calendar.MONTH, -1);
-                break;
-            case 2: gc.add(Calendar.DAY_OF_YEAR, -7);
-                break;
-            case 3: gc.add(Calendar.HOUR, -24);
-                break;
-            default:
-                gc.add(Calendar.MONTH, -1);
-                break;
-        }        
-        Date fromDate = gc.getTime();            
+//        Calendar gc = GregorianCalendar.getInstance();            
+//        gc.setTime(new Date());
+//        switch(range) {
+//            case 1: gc.add(Calendar.MONTH, -1);
+//                break;
+//            case 2: gc.add(Calendar.DAY_OF_YEAR, -7);
+//                break;
+//            case 3: gc.add(Calendar.HOUR, -24);
+//                break;
+//            case 4: gc.add(Calendar.HOUR, -1);
+//                break;
+//            default:
+//                gc.add(Calendar.HOUR, -1);
+//                break;
+//        }        
+        Date fromDate = TimelineRange.get(range);//gc.getTime();            
         Date toDate = new Date();
         
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
