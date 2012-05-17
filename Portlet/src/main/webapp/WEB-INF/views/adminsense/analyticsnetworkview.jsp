@@ -12,7 +12,6 @@
 
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
-
 <portlet:resourceURL var="getAnalyticsRangeJSONURL" id="getAnalyticsRangeJSON" />
 
 <script type="text/javascript">

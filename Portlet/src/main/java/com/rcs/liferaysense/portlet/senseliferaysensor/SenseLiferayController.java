@@ -56,15 +56,11 @@ public class SenseLiferayController {
     public ModelAndView resolveView(PortletRequest request, PortletResponse response) throws PortalException, SystemException {
         HashMap<String, Object> modelAttrs = new HashMap<String, Object>();        
         return new ModelAndView("senseliferay/view", modelAttrs); 
-    }    
-    
-    
-    
+    }
     
     /*
      ********************************************** ResourceMapping AJAX Methods
-    */
-    
+    */    
     /**
      * Store User Data and Location in Sense
      * @param clientlocation

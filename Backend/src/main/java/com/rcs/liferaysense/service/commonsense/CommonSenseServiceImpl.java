@@ -1,7 +1,5 @@
 package com.rcs.liferaysense.service.commonsense;
 
-import antlr.StringUtils;
-import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.google.gson.Gson;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -10,11 +8,16 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalService;
 import com.rcs.common.service.ServiceActionResult;
+import static com.rcs.liferaysense.common.Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
+import static com.rcs.liferaysense.common.Constants.DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
+import com.rcs.liferaysense.common.ResourceBundleHelper;
 import com.rcs.liferaysense.entities.SenseConfiguration;
 import com.rcs.liferaysense.entities.chap.graph.dtos.LiferaySensorDataDTO;
+import com.rcs.liferaysense.entities.dtos.ClientLocation;
 import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
 import com.rcs.liferaysense.entities.dtos.ResponseErrorMessage;
+import com.rcs.liferaysense.service.local.SenseConfigurationService;
 import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolation;
@@ -26,9 +29,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import static com.rcs.liferaysense.common.Constants.*;
-import com.rcs.liferaysense.common.ResourceBundleHelper;
-import com.rcs.liferaysense.service.local.SenseConfigurationService;
 
 /**
  * Implementation of the common sense service. This uses the spring framework
@@ -44,8 +44,6 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * This property is overriden on the init method..
      */
     private String SERVICE_URL = "http://api.sense-os.nl/"; //service url
-    private String SERVICE_DEV_URL = "http://api.dev.sense-os.nl/";
-    private String QUIT_NOTIFICATION_TEMPLATE = ""; //the notification template.
     private static final String LOGIN_ENDPOINT = "login?username={username}&password={password}";
     private static final String LOGOUT_ENDPOINT = "logout?&session_id={sessionId}";
     private static final String DATA_ENDPOINT = "sensors/{sensorId}/data?start_date={startSecs}&end_date={endSecs}&total=1&page={page}&session_id={sessionId}&per_page={per_page}";
@@ -54,26 +52,20 @@ class CommonSenseServiceImpl implements CommonSenseService {
     private static final String CURRENT_USERINFO_ENDPOINT = "users/current?session_id={sessionId}";
     private static final String LOG_LIFERAY_SENSOR_DATA_ENDPOINT = "sensors/{sensorId}/data?data[value]={value}&session_id={sessionId}";    
     private static final String CREATE_SENSOR_ENDPOINT = "sensors?sensor[name]={name}&sensor[display_name]={display_name}&sensor[data_type]={data_type}&sensor[device_type]={device_type}&sensor[type]={type}&sensor[data_structure]={data_structure}&session_id={sessionId}";
-    private static final String USERS_FOR_SENSOR_ENDPOINT = "sensors/{sensorId}/users?session_id={sessionId}";
-    private static final String TRIGGERS_ENDPOINT = "sensors/{sensorId}/triggers/{triggerId}?session_id={sessionId}";
     private static final String SENSORS_ENDPOINT = "sensors?page=0&details=full&session_id={sessionId}";
-    private static final String SENSOR_ENDPOINT = "sensors/{sensorId}?session_id={sessionId}"; 
-    private static final String TOTAL_DATA_ENDPOINT = "sensors/{sensorId}/data.json?page=0&per_page=1&total=1&session_id={sessionId}";
     
     private static final int RESULTS_PER_PAGE = 1000;
     private static final int MAXPAGES = 10;
         
     @Autowired
-    private RestTemplate template;
-    
+    private RestTemplate template;    
     @Autowired
-    private Validator validator;
-    
+    private Validator validator;    
     @Autowired
-    private SenseConfigurationService senseConfigurationService;
-    
+    private SenseConfigurationService senseConfigurationService;    
     @Autowired
     private UserLocalService userService;
+    
     /**
      * Perform instance initialization, this sets up the restTemplate instance
      * and associate it with the custom error handler.
@@ -100,7 +92,6 @@ class CommonSenseServiceImpl implements CommonSenseService {
 
         String startSecs = Long.toString(dateFrom.getTime() / 1000);
         String endSecs = Long.toString(dateTo.getTime() / 1000);
-        //String sensorIdStr = Integer.toString(sensorId);
 
         // build the parameters map.
         parameters.put("startSecs", startSecs);
@@ -596,5 +587,4 @@ class CommonSenseServiceImpl implements CommonSenseService {
         }
         return result;
     }
-
 }

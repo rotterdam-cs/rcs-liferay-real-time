@@ -29,8 +29,6 @@ import com.rcs.liferaysense.service.local.SenseConfigurationService;
 import com.rcs.liferaysense.service.local.SenseUserService;
 import com.rcs.liferaysense.utils.HashUtils;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.ResourceRequest;
@@ -77,8 +75,7 @@ public class AdminSenseController {
 
     /*
      ********************************************** ResourceMapping AJAX Methods
-    */
-    
+    */    
     /**
      * Sections Handler
      * @param request
@@ -440,8 +437,7 @@ public class AdminSenseController {
 
     /*
      ********************************************************** Auxiliar Methods
-    */
-    
+    */    
     /**
      * Auxiliar Method
      * Section Account first AJAX call
