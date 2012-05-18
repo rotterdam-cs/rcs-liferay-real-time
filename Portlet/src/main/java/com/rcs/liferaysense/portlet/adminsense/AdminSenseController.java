@@ -280,7 +280,13 @@ public class AdminSenseController {
         if (serviceActionResult.isSuccess()) {
             String oldPassword = serviceActionResult.getPayload().getPropertyValue();            
             if (default_password.equals(HashUtils.md5(oldPassword))) {
-                default_password = oldPassword;
+                ServiceActionResult<SenseConfiguration> serviceActionResultUsername = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME);
+                if (serviceActionResultUsername.isSuccess()) {
+                    String oldUsername = serviceActionResultUsername.getPayload().getPropertyValue();
+                    if (default_sense_username.equals(oldUsername)) {
+                        default_password = oldPassword;
+                    }
+                }
             }
         }  
         
@@ -291,10 +297,9 @@ public class AdminSenseController {
         //Create a sense user if it doesn't exists
         CommonSenseSession commonAdminSenseSession = commonSenseService.login(default_sense_username, default_password);
         if (commonAdminSenseSession == null) {
-            log.info("Creating new Sense Admin Account");
             utils.logOutSense(request);
             long liferayUserId = utils.getUserId(request);
-            LocalResponse senseAdminUserResponse = senseAdminRegisterAccount(default_sense_username, default_password, liferayUserId);
+            LocalResponse senseAdminUserResponse = senseAdminRegisterAccount(default_sense_username, default_sense_pass, liferayUserId);
             if (!senseAdminUserResponse.isSuccess()){
                 result.setSuccess(false);
                 result.setMessage(senseAdminUserResponse.getMessage());
@@ -302,63 +307,70 @@ public class AdminSenseController {
                 return null;
             } else {
                 message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.senseadminuser.created", locale);
+                commonAdminSenseSession = commonSenseService.login(default_sense_username, HashUtils.md5(default_sense_pass));
             }
         } else {
             message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.senseadminuser.verified", locale);
         }
         
-        //Create LiferaySensorData Sensor if it doesn't exists
-        List<Sensor> sensors = commonSenseService.listSensors(commonAdminSenseSession, LIFERAY_SENSOR_DEVICE_TYPE);
-        if (sensors.isEmpty()) {
-            String name = LIFERAY_SENSOR_NAME;
-            String display_name = LIFERAY_SENSOR_DISPLAY_NAME;
-            String data_type = LIFERAY_SENSOR_DATA_TYPE;
-            String device_type = LIFERAY_SENSOR_DEVICE_TYPE;
-            String type = LIFERAY_SENSOR_TYPE;
-            String data_structure=LIFERAY_SENSOR_DATA_STRUCTURE;
-            LocalResponse sensorCreationResonse = senseAdminCreateSensor(commonAdminSenseSession, name, display_name, data_type, device_type, type, data_structure);
-            if (!sensorCreationResonse.isSuccess()) {
-                result.setSuccess(false);
-                result.setMessage(sensorCreationResonse.getMessage());
-                response.getWriter().write(utils.validationMessages(result));
-                return null;
-            } else {
-                sensors = commonSenseService.listSensors(commonAdminSenseSession, LIFERAY_SENSOR_DEVICE_TYPE);
-                message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.liferaysensordata.created", locale);
-            }
-        }
         String liferaySensorDataId = "";
-        for (Sensor sensor : sensors) {
-            liferaySensorDataId = String.valueOf(sensor.getId());
-        }
-        message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.liferaysensordata.verified", locale).replace("{0}", liferaySensorDataId);
-        
-        //Create ClientLocation Sensor if it doesn't exists
-        List<Sensor> sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
-        if (sensorsClientLocation.isEmpty()) {
-            String name = CLIENTLOCATION_SENSOR_NAME;
-            String display_name = CLIENTLOCATION_SENSOR_DISPLAY_NAME;
-            String data_type = CLIENTLOCATION_SENSOR_DATA_TYPE;
-            String device_type = CLIENTLOCATION_SENSOR_DEVICE_TYPE;
-            String type = CLIENTLOCATION_SENSOR_TYPE;
-            String data_structure=CLIENTLOCATION_SENSOR_DATA_STRUCTURE;
-            LocalResponse sensorCreationResonse = senseAdminCreateSensor(commonAdminSenseSession, name, display_name, data_type, device_type, type, data_structure);
-            if (!sensorCreationResonse.isSuccess()) {
-                result.setSuccess(false);
-                result.setMessage(sensorCreationResonse.getMessage());
-                response.getWriter().write(utils.validationMessages(result));
-                return null;
-            } else {
-                sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
-                message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.created", locale);
-            }
-        }
         String clientLocationSensorId = "";
-        for (Sensor sensor : sensorsClientLocation) {
-            clientLocationSensorId = String.valueOf(sensor.getId());
+        if (commonAdminSenseSession != null) {
+            //Create LiferaySensorData Sensor if it doesn't exists
+            List<Sensor> sensors = commonSenseService.listSensors(commonAdminSenseSession, LIFERAY_SENSOR_DEVICE_TYPE);
+            if (sensors.isEmpty()) {
+                String name = LIFERAY_SENSOR_NAME;
+                String display_name = LIFERAY_SENSOR_DISPLAY_NAME;
+                String data_type = LIFERAY_SENSOR_DATA_TYPE;
+                String device_type = LIFERAY_SENSOR_DEVICE_TYPE;
+                String type = LIFERAY_SENSOR_TYPE;
+                String data_structure=LIFERAY_SENSOR_DATA_STRUCTURE;
+                LocalResponse sensorCreationResonse = senseAdminCreateSensor(commonAdminSenseSession, name, display_name, data_type, device_type, type, data_structure);
+                if (!sensorCreationResonse.isSuccess()) {
+                    result.setSuccess(false);
+                    result.setMessage(sensorCreationResonse.getMessage());
+                    response.getWriter().write(utils.validationMessages(result));
+                    return null;
+                } else {
+                    sensors = commonSenseService.listSensors(commonAdminSenseSession, LIFERAY_SENSOR_DEVICE_TYPE);
+                    message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.liferaysensordata.created", locale);
+                }
+            }
+            
+            for (Sensor sensor : sensors) {
+                liferaySensorDataId = String.valueOf(sensor.getId());
+            }
+            message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.liferaysensordata.verified", locale).replace("{0}", liferaySensorDataId);
+
+            //Create ClientLocation Sensor if it doesn't exists
+            List<Sensor> sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
+            if (sensorsClientLocation.isEmpty()) {
+                String name = CLIENTLOCATION_SENSOR_NAME;
+                String display_name = CLIENTLOCATION_SENSOR_DISPLAY_NAME;
+                String data_type = CLIENTLOCATION_SENSOR_DATA_TYPE;
+                String device_type = CLIENTLOCATION_SENSOR_DEVICE_TYPE;
+                String type = CLIENTLOCATION_SENSOR_TYPE;
+                String data_structure=CLIENTLOCATION_SENSOR_DATA_STRUCTURE;
+                LocalResponse sensorCreationResonse = senseAdminCreateSensor(commonAdminSenseSession, name, display_name, data_type, device_type, type, data_structure);
+                if (!sensorCreationResonse.isSuccess()) {
+                    result.setSuccess(false);
+                    result.setMessage(sensorCreationResonse.getMessage());
+                    response.getWriter().write(utils.validationMessages(result));
+                    return null;
+                } else {
+                    sensorsClientLocation = commonSenseService.listSensors(commonAdminSenseSession, CLIENTLOCATION_SENSOR_DEVICE_TYPE);
+                    message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.created", locale);
+                }
+            }            
+            for (Sensor sensor : sensorsClientLocation) {
+                clientLocationSensorId = String.valueOf(sensor.getId());
+            }
+            message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.verified", locale).replace("{0}", clientLocationSensorId);
+        } else {
+            log.error("commonAdminSenseSession IS STILL NULL");
         }
-        message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.clientlocationsensordata.verified", locale).replace("{0}", clientLocationSensorId);
-         
+            
+            
         //CONFIGURATION OPTIONS
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_AUTO_REGISTER, auto_register);
         configurationOptions.put(ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT, allow_change_account);

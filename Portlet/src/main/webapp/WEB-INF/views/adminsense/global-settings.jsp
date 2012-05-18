@@ -53,17 +53,17 @@
     
     <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>"><fmt:message key="com.rcs.sense.general.default.password"/>:</label>
-        <input type="password" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" class="required span3" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" value="${default_sense_pass}" />
+        <input type="password" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" class="required span3 deponuser" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD%>" value="${default_sense_pass}" />
     </p>
     
     <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>"><fmt:message key="com.rcs.sense.general.keepalive.page.navigation"/>: </label>
-        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" class="required span2 number" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" value="${time_to_keep_alive_page_navigation}" />
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" class="required span2 number deponuser" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION%>" value="${time_to_keep_alive_page_navigation}" />
     </p>
     
     <p>
         <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>"><fmt:message key="com.rcs.sense.general.autoreload.networkmap.time"/>: </label>
-        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" class="required span2 number" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" value="${network_autoreload_time}" />
+        <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" class="required span2 number deponuser" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_NETWORKMAP_AUTORELOAD_TIME%>" value="${network_autoreload_time}" />
     </p>
     
     <p>
@@ -120,6 +120,10 @@
                 jQuery("#<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_ALLOW_CHANGE_SENSE_ACCOUNT%>").attr("disabled", false); 
             }
         });
+        
+        jQuery(document).on("change", "#<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>", function() {
+            jQuery(".deponuser").val("");
+        });    
         
         <%--//Listener for Register Button --%>
         var optionsSaveGlobalSettings = {

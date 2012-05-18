@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -332,8 +333,9 @@ class CommonSenseServiceImpl implements CommonSenseService {
      */
     @Override
     public CommonSenseSession login(String username, String password) {        
-        String token = doLogin(username, password);        
+        String token = doLogin(username, password);
         if (token == null) {
+            log.error("Can't login in SENSE " + username + " - " + password);
             return null;
         }
         return new ServiceAccessToken(token, this, username, password);
@@ -433,14 +435,21 @@ class CommonSenseServiceImpl implements CommonSenseService {
      */
     @Override
     public List<Sensor> listSensors(CommonSenseSession session) {
-        //build the parameters
-        Map<String, String> parameters = buildSessionParameters(session);
-        //query the service
-        String result = template.getForObject(SERVICE_URL + SENSORS_ENDPOINT, String.class, parameters);
+        List<Sensor> sensorsFromServerForUser =  new LinkedList<Sensor>(); 
+        try {
+            //build the parameters
+            Map<String, String> parameters = buildSessionParameters(session);
+            //query the service
+            String result = template.getForObject(SERVICE_URL + SENSORS_ENDPOINT, String.class, parameters);
 
-        //return the list of sensors.
-        List<Sensor> sensorsFromServerForUser = CommonSenseObjectMapper.mapSensorsList(result);
+            //return the list of sensors.
+            sensorsFromServerForUser = CommonSenseObjectMapper.mapSensorsList(result);
+        } catch (RestClientException e) {
+            logger.error("RestClientException: ", e);
         
+        } catch (Exception e) {
+            logger.error("ListSensor Exception: ", e);
+        }        
         return sensorsFromServerForUser;
     }
     
@@ -452,13 +461,20 @@ class CommonSenseServiceImpl implements CommonSenseService {
      */
     @Override
     public List<Sensor> listSensors(CommonSenseSession session, String device_type) {        
-        List<Sensor> allsensors = listSensors(session);
-        List<Sensor> sensorsFromServerForUser = new LinkedList<Sensor>();
-        for (Sensor sensor : allsensors) {
-            if (device_type.equals(sensor.getDevice_type())) {
-                sensorsFromServerForUser.add(sensor);
-            }
-        }        
+        List<Sensor> sensorsFromServerForUser = new LinkedList<Sensor>(); 
+        try {
+            List<Sensor> allsensors = listSensors(session);            
+            for (Sensor sensor : allsensors) {
+                if (device_type.equals(sensor.getDevice_type())) {
+                    sensorsFromServerForUser.add(sensor);
+                }
+            }     
+        } catch (RestClientException e) {
+            logger.error("RestClientException: ", e);
+        
+        } catch (Exception e) {
+            logger.error("ListSensor Exception: ", e);
+        } 
         return sensorsFromServerForUser;
     }
     
