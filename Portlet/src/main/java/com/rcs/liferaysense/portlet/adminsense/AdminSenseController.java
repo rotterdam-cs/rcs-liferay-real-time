@@ -253,8 +253,18 @@ public class AdminSenseController {
                 log.error("Can not parse autoreload time " + e);
             }            
         }
-        
         modelAttrs.put("autoReloadTime", autoReloadTime);
+        int keepAlivePage = DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION;
+         ServiceActionResult<SenseConfiguration> serviceActionResulttka = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION);
+        if (commonSenseSession != null && serviceActionResulttka.isSuccess()) {
+            try {
+                keepAlivePage = Integer.parseInt(serviceActionResulttka.getPayload().getPropertyValue());
+            } catch (NumberFormatException e) {
+                log.error("Can not parse Time to keep alive page" + e);
+            } 
+        }
+        keepAlivePage = keepAlivePage * 60 * 1000;
+        modelAttrs.put("keepAlivePage", keepAlivePage);
         return new ModelAndView("adminsense/analyticsnetworkview", modelAttrs);
     }
         
@@ -283,8 +293,6 @@ public class AdminSenseController {
         
         Date fromDate = new Date(startTime);
         Date toDate = new Date(endTime);
-        log.error("getAnalyticsRangeJSON");
-        log.error("(" + startTime + ")" + fromDate + " to (" + endTime + ")" +  toDate);
         
         String contextPath = request.getContextPath();
         
@@ -292,7 +300,6 @@ public class AdminSenseController {
         LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
         List <LiferaySensorDataDTO> liferaySensorsData = (List <LiferaySensorDataDTO>) modelAttrs.get("liferaySensorsData");        
         liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
-        log.error("after Retrieve size" + liferaySensorsData.size());
         
         List<PagesDto> pages = (List <PagesDto>) modelAttrs.get("pages");        
         liferaySensorsDataDTO.setPages(pages);

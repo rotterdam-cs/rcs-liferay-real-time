@@ -31,7 +31,7 @@
         <footer-portlet-javascript>/js/jquery.json-2.3/jquery.json-2.3.min.js</footer-portlet-javascript>   
     </portlet>
     
-    <portlet>
+<!--    <portlet>
         <portlet-name>SenseLiferaySensor</portlet-name>
         <icon>/icon.png</icon>
         <instanceable>true</instanceable>
@@ -41,7 +41,7 @@
         <footer-portlet-javascript>/js/jquery.json-2.3/jquery.json-2.3.min.js</footer-portlet-javascript> 
         <footer-portlet-javascript>/js/responseHandler.js</footer-portlet-javascript>   
         <css-class-wrapper>senseliferaysensor</css-class-wrapper>     
-    </portlet>
+    </portlet>-->
     
     <role-mapper>
             <role-name>administrator</role-name>

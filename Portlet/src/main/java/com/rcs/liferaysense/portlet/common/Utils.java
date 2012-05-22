@@ -58,6 +58,11 @@ public class Utils {
         return userID;
     }
     
+    public long getUserId(HttpServletRequest request) {
+        long userID = (Long) request.getAttribute(WebKeys.USER_ID);
+        return userID;
+    }
+    
     /**
      * 
      * @param error

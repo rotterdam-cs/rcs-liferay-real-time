@@ -34,7 +34,7 @@
             <role-name>user</role-name>
         </security-role-ref>
     </portlet>
-    <portlet>
+<!--    <portlet>
             <portlet-name>SenseLiferaySensor</portlet-name>
             <display-name>Sense Liferay Sensor</display-name>
             <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
@@ -71,6 +71,6 @@
             <security-role-ref>
                     <role-name>user</role-name>
             </security-role-ref>
-    </portlet>
+    </portlet>-->
 	
 </portlet-app>

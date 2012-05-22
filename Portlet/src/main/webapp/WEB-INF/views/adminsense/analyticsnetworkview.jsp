@@ -108,14 +108,12 @@
                 total ++;
             </c:forEach> 
         } else {
-            jQuery.each(sensordata, function(index, row) {
-                console.log("sensordata Iteration " + index);
+            jQuery.each(sensordata, function(index, row) {                
                 var packageFrom = row.previous_pageId;
                 var packageTo = row.pageId;
                 if (packageFrom == packageTo) { packageFrom = 0;}
                 if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array();}
                 if (linksAdded[packageFrom][packageTo] != true) {
-                    console.log("Adding Link from " + packageFrom + " to " + packageTo);
                     linksAdded[packageFrom][packageTo] = true;
                     linksTable.addRow([
                         total
@@ -160,10 +158,9 @@
                 while (c < stepCount + 1) {
                     var progress = c / stepCount;
                     var action = 'create';
-                    //var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
-                    var title = '${row.liferayUserInformation} <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
+                    var title = '${row.liferayUserInformation} ${row.liferayUserInformation} <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
                     packagesTable.addRow([
-                            n
+                         n
                         ,packageFrom
                         ,packageTo
                         ,title
@@ -182,8 +179,7 @@
             </c:forEach>
         } else {
             second = stepSeconds;
-            jQuery.each(sensordata, function(index, row) {                
-                console.log("sensordata2 Iteration " + index);
+            jQuery.each(sensordata, function(index, row) {
                 var recorederedTime = new Date(row.timestamp);
                 var t = new Date(row.timestamp);
                 var duration = undefined;
@@ -191,18 +187,14 @@
                 var packageTo = row.pageId;
                 if (packageFrom == packageTo) { packageFrom = 0; }
                 var c = 0;
-                console.log("Package From " + packageFrom + " To " + packageTo);
                 while (c < stepCount + 1) {
                     var progress = c / stepCount;
-                    var action = 'create';
-                    //var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ' + row.browser;                
+                    var action = 'create';                    
                     var title = row.liferayUserInformation + ' <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
                     var browser = row.browser;
-                    if (n < 1 && c == 0) {
-                        browser = 'empty';
-                    }                    
+                    if (n < 1 && c == 0) { browser = 'empty'; }                    
                     packagesTable.addRow([
-                        n
+                         n
                         ,packageFrom
                         ,packageTo
                         ,title
@@ -220,7 +212,7 @@
                 n++;
             });
         }
-        
+        <%--//Empty package to make sure the animation is always shown --%>
         packagesTable.addRow([n+1, 0, 0, undefined, 0, "create", new Date(), undefined,'image','${pageContext.request.contextPath}/img/empty.png']);
         
         options = {
