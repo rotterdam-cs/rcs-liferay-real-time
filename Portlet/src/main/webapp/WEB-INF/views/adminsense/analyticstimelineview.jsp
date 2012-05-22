@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<%@page contentType="text/html" pageEncoding="UTF-8" import="com.rcs.liferaysense.common.Constants"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" 
+    import="com.rcs.liferaysense.common.Constants"
+    import="com.rcs.liferaysense.entities.enums.TimelineRange"
+%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <%@taglib prefix="aui" uri="http://liferay.com/tld/aui" %>
@@ -24,6 +27,7 @@
     var runningProcess = null;
     
     function drawVisualizationimeline<portlet:namespace/>(sensordata) {
+        var selectedRange = jQuery('input:radio[name=<portlet:namespace/>range]:checked').val();
         data = new google.visualization.DataTable();
         data.addColumn('datetime', 'start');
         data.addColumn('datetime', 'end');
@@ -46,13 +50,25 @@
         var options = {"style": "box"};
 
         timeline = new links.Timeline(document.getElementById('<portlet:namespace/>mytimeline'));
-
-        google.visualization.events.addListener(timeline, 'select', onselect);
-        google.visualization.events.addListener(timeline, 'rangechange', onrangechange);  
-        google.visualization.events.addListener(timeline, 'rangechanged', onrangechanged);      
+        
+        if (selectedRange != <%=TimelineRange.REAL_TIME.getId()%>) {
+            google.visualization.events.addListener(timeline, 'select', onselect);
+            google.visualization.events.addListener(timeline, 'rangechange', onrangechange);  
+            google.visualization.events.addListener(timeline, 'rangechanged', onrangechanged);      
+        }
 
         timeline.draw(data, options);
-        //timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1);
+        
+        //timeline.setScale(links.Timeline.StepDate.SCALE.MINUTE, 10) //Real Time
+        //timeline.setScale(links.Timeline.StepDate.SCALE.HOUR, 1) //Last Hour
+        //timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1); //Last Day
+        //timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 7); //Last Week
+        //timeline.setScale(links.Timeline.StepDate.SCALE.MONTH, 1); //Last Month
+        
+        if (selectedRange == <%=TimelineRange.REAL_TIME.getId()%>) {
+            timeline.setVisibleChartRange(new Date(startTime), new Date(endTime));
+            timeline.setVisibleChartRangeNow();
+        }
     }  
     
     function reloadTimeline<portlet:namespace/>() {
@@ -63,6 +79,8 @@
             ,function(returned_data) {
                 rows = jQuery.parseJSON(returned_data);
                 drawVisualizationimeline<portlet:namespace/>(rows.liferaySensorsData);
+                startTime = rows.startTime;
+                endTime = rows.endTime;
             }
         );
     }

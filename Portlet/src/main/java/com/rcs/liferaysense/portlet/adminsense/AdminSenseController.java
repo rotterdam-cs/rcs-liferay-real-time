@@ -142,9 +142,14 @@ public class AdminSenseController {
         Locale locale = themeDisplay.getLocale();
         String contextPath = request.getContextPath();           
         List<PagesDto> pages = getPages(themeDisplay, locale);
-           
+        
         Date fromDate = TimelineRange.get(range);        
         Date toDate = new Date();
+        
+        
+        log.error("getAnalyticsBigRange");
+        log.error("(" + fromDate.getTime() + ")" + fromDate + " to (" + toDate.getTime() + ")" +  toDate);
+        
         
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
         CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
@@ -186,6 +191,9 @@ public class AdminSenseController {
         Date fromDate = TimelineRange.get(range);        
         Date toDate = new Date();
         
+        log.error("getAnalyticsBigRangeJSON");
+        log.error("(" + fromDate.getTime() + ")" + fromDate + " to (" + toDate.getTime() + ")" +  toDate);
+        
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
         CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
@@ -196,6 +204,8 @@ public class AdminSenseController {
         
         LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
         liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
+        liferaySensorsDataDTO.setStartTime(fromDate.getTime());
+        liferaySensorsDataDTO.setEndTime(toDate.getTime());
         
         Gson gson = new Gson();        
         String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        
@@ -246,6 +256,54 @@ public class AdminSenseController {
         
         modelAttrs.put("autoReloadTime", autoReloadTime);
         return new ModelAndView("adminsense/analyticsnetworkview", modelAttrs);
+    }
+        
+    /**
+     * AJAX
+     * Admin / Analytics / getAnalyticsRangeJSON (Detailed Network View JSON)
+     * @param startTime
+     * @param endTime
+     * @param clientlocation
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception 
+     */
+    @ResourceMapping(value = "getAnalyticsRangeJSON")
+    public ModelAndView getAnalyticsRangeJSONController(
+             Long startTime
+            ,Long endTime
+            ,ResourceRequest request
+            ,ResourceResponse response
+    ) throws Exception {        
+        ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long groupId = utils.getGroupId(request);
+        long companyId = utils.getcompanyId(request); 
+        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
+        
+        Date fromDate = new Date(startTime);
+        Date toDate = new Date(endTime);
+        log.error("getAnalyticsRangeJSON");
+        log.error("(" + startTime + ")" + fromDate + " to (" + endTime + ")" +  toDate);
+        
+        String contextPath = request.getContextPath();
+        
+        HashMap<String, Object> modelAttrs = getModelAttrs(fromDate, toDate, commonSenseSession, themeDisplay, groupId, companyId, contextPath);
+        LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
+        List <LiferaySensorDataDTO> liferaySensorsData = (List <LiferaySensorDataDTO>) modelAttrs.get("liferaySensorsData");        
+        liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
+        log.error("after Retrieve size" + liferaySensorsData.size());
+        
+        List<PagesDto> pages = (List <PagesDto>) modelAttrs.get("pages");        
+        liferaySensorsDataDTO.setPages(pages);
+        
+        long stepSeconds = (endTime - startTime) / NETWORKMAP_ZOOM_ADJUST_FACTOR;
+        liferaySensorsDataDTO.setStepSeconds(stepSeconds);
+        
+        Gson gson = new Gson();        
+        String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        
+        response.getWriter().write(sensorJSON);
+        return null;
     }
        
     /**
@@ -401,49 +459,6 @@ public class AdminSenseController {
         message += ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.global.settings.saved", locale);
         result.setMessage(message);        
         response.getWriter().write(utils.validationMessages(result));
-        return null;
-    }
-        
-    /**
-     * AJAX
-     * Admin / Analytics / getAnalyticsRangeJSON (Detailed Network View JSON)
-     * @param startTime
-     * @param endTime
-     * @param clientlocation
-     * @param request
-     * @param response
-     * @return
-     * @throws Exception 
-     */
-    @ResourceMapping(value = "getAnalyticsRangeJSON")
-    public ModelAndView getAnalyticsRangeJSONController(
-             Long startTime
-            ,Long endTime
-            ,ResourceRequest request
-            ,ResourceResponse response
-    ) throws Exception {        
-        ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long groupId = utils.getGroupId(request);
-        long companyId = utils.getcompanyId(request); 
-        CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
-        
-        Date fromDate = new Date(startTime);
-        Date toDate = new Date(endTime);
-        String contextPath = request.getContextPath();
-        
-        HashMap<String, Object> modelAttrs = getModelAttrs(fromDate, toDate, commonSenseSession, themeDisplay, groupId, companyId, contextPath);
-        LiferaySensorsDataDTO liferaySensorsDataDTO = new LiferaySensorsDataDTO();
-        List <LiferaySensorDataDTO> liferaySensorsData = (List <LiferaySensorDataDTO>) modelAttrs.get("liferaySensorsData");        
-        liferaySensorsDataDTO.setLiferaySensorsData(liferaySensorsData);
-        List<PagesDto> pages = (List <PagesDto>) modelAttrs.get("pages");        
-        liferaySensorsDataDTO.setPages(pages);
-        
-        long stepSeconds = (endTime - startTime) / NETWORKMAP_ZOOM_ADJUST_FACTOR;
-        liferaySensorsDataDTO.setStepSeconds(stepSeconds);
-        
-        Gson gson = new Gson();        
-        String sensorJSON = gson.toJson(liferaySensorsDataDTO, LiferaySensorsDataDTO.class);        
-        response.getWriter().write(sensorJSON);
         return null;
     }
 

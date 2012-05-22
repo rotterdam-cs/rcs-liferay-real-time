@@ -188,15 +188,14 @@ class CommonSenseServiceImpl implements CommonSenseService {
 
                 userInformation = userInformation.replaceAll("\\{ip\\}", liferaySensorDataDTO.getIp());
                 userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
-
-                liferaySensorDataDTO.setLiferayUserInformation(userInformation);
             } else {
                 liferayUserId = Long.parseLong(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
             }
+            liferaySensorDataDTO.setLiferayUserInformation(userInformation);
             
             for (PagesDto pagesDto : pages) {
                 if (pagesDto.getId() == liferaySensorDataDTO.getPageId()) {
-                    pagesDto.setVisits(pagesDto.getVisits() + 1);                    
+                    pagesDto.setVisits(pagesDto.getVisits() + 1); 
                     liferaySensorDataDTO.setPageCounter(pagesDto.getVisits());
                     for (PagesDto pagesDtoInt : pages) {
                         if (pagesDtoInt.isUserInPage(liferayUserId)){
@@ -221,7 +220,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
             }
             
             //Only add the movement with exiting pages
-            if (isValidMovement(pages, liferaySensorDataDTO.getPageId(), liferaySensorDataDTO.getPrevious_pageId())) {
+            if (isValidMovement(pages, liferaySensorDataDTO.getPrevious_pageId(), liferaySensorDataDTO.getPageId())) {
                 liferaySensorsData.add(liferaySensorDataDTO);
             }
         }
@@ -230,15 +229,15 @@ class CommonSenseServiceImpl implements CommonSenseService {
     
     private boolean isValidMovement(List<PagesDto> pages, long pageFrom, long pageTo) {
         boolean result = false;
-        for (PagesDto pagesDto : pages) {            
-            if (pagesDto.getId() == pageFrom){
+        for (PagesDto pagesDto : pages) {
+            if (pagesDto.getId() == pageFrom || pageFrom == 0) {
                 result = true;
             }
         }
         if (result) {
             result = false;
-            for (PagesDto pagesDto : pages) {            
-                if (pagesDto.getId() == pageTo){
+            for (PagesDto pagesDto : pages) {
+                if (pagesDto.getId() == pageTo) {
                     result = true;
                 }
             }   

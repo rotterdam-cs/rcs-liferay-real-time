@@ -96,7 +96,7 @@
 
 <script type="text/javascript">
     jQuery(function() { 
-
+        clearTimeout(runningProcess);
         <%--//Handle SAVE Response--%>
         function saveGlobalSettingsHandleResponse(responseText, statusText, xhr, form) {            
             var response = getResponseTextInfo(responseText);

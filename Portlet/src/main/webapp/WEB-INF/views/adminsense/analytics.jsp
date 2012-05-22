@@ -33,7 +33,11 @@
 <div class="controls">
     <div class="sense-admin-range">
         <label class="radio">
-            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_HOUR.getId()%>" checked>
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.REAL_TIME.getId()%>" checked>
+            <fmt:message key="com.rcs.sense.admin.analytics.report.range.real.time"/>
+        </label>
+        <label class="radio">
+            <input type="radio" name="<portlet:namespace/>range" value="<%=TimelineRange.LAST_HOUR.getId()%>">
             <fmt:message key="com.rcs.sense.admin.analytics.report.range.last.hour"/>
         </label>
         <label class="radio">
@@ -60,7 +64,7 @@
     <div id="<portlet:namespace/>mynetworkcontainer"></div>
 </div>
 
-<script type="text/javascript">    
+<script type="text/javascript">
     function getTimeline() {
         jQuery("#<portlet:namespace/>administration-container-mask").mask('<fmt:message key="com.rcs.sense.general.mask.loading.text"/>');
         jQuery("#<portlet:namespace/>mytimelinecontainer").load("${getAnalyticsBigRangeURL}"

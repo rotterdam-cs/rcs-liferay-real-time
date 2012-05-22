@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<%@page contentType="text/html" pageEncoding="UTF-8" import="com.rcs.liferaysense.common.Constants"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" 
+    import="com.rcs.liferaysense.common.Constants"
+    import="com.rcs.liferaysense.entities.enums.TimelineRange"
+%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <%@taglib prefix="aui" uri="http://liferay.com/tld/aui" %>
@@ -55,7 +58,7 @@
         } else {
             jQuery.each(pages, function(index, row) {
                 var id = row.id;
-                var text = (row.currentvisitors > 0) ? row.page + ' [ ' + row.visits + ' ]\n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ' + row.currentvisitors : ' [ ' + row.visits + ' ]' + row.page;
+                var text = (row.currentvisitors > 0) ? row.page + ' [ ' + row.visits + ' ]\n <fmt:message key="com.rcs.sense.admin.analytics.current"/>: ' + row.currentvisitors : row.page + ' [ ' + row.visits + ' ]';
                 var style = (row.id == 1) ? "circle" : "rect";
                 var group = (row.current == true) ? "current" : (row.current != true) ? "common" : "";
                 var title = '<a class="various" data-fancybox-type="iframe" href="' + row.url + '" ><fmt:message key="com.rcs.sense.admin.analytics.page.preview"/></a><br /><fmt:message key="com.rcs.sense.admin.analytics.total.views"/>: ' + row.visits + '<br />' + row.UsersInPageInfo + '';               
@@ -106,11 +109,13 @@
             </c:forEach> 
         } else {
             jQuery.each(sensordata, function(index, row) {
+                console.log("sensordata Iteration " + index);
                 var packageFrom = row.previous_pageId;
                 var packageTo = row.pageId;
-                if (packageFrom == packageTo) { packageFrom = 0; }
-                if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array(); }
-                if (linksAdded[packageFrom][packageTo] !== true){
+                if (packageFrom == packageTo) { packageFrom = 0;}
+                if (linksAdded[packageFrom] == null) { linksAdded[packageFrom] =  new Array();}
+                if (linksAdded[packageFrom][packageTo] != true) {
+                    console.log("Adding Link from " + packageFrom + " to " + packageTo);
                     linksAdded[packageFrom][packageTo] = true;
                     linksTable.addRow([
                         total
@@ -145,6 +150,7 @@
         if (sensordata == null) {
             second = ${stepSeconds};
             <c:forEach items="${liferaySensorsData}" var="row">
+                var recorederedTime = new Date(${row.timestamp});
                 var t = new Date(${row.timestamp});
                 var duration = undefined;
                 var packageFrom = ${row.previous_pageId};
@@ -154,7 +160,8 @@
                 while (c < stepCount + 1) {
                     var progress = c / stepCount;
                     var action = 'create';
-                    var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
+                    //var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ${row.browser}';                
+                    var title = '${row.liferayUserInformation} <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
                     packagesTable.addRow([
                             n
                         ,packageFrom
@@ -176,18 +183,22 @@
         } else {
             second = stepSeconds;
             jQuery.each(sensordata, function(index, row) {                
+                console.log("sensordata2 Iteration " + index);
+                var recorederedTime = new Date(row.timestamp);
                 var t = new Date(row.timestamp);
                 var duration = undefined;
                 var packageFrom = row.previous_pageId;
                 var packageTo = row.pageId;
                 if (packageFrom == packageTo) { packageFrom = 0; }
                 var c = 0;
+                console.log("Package From " + packageFrom + " To " + packageTo);
                 while (c < stepCount + 1) {
                     var progress = c / stepCount;
                     var action = 'create';
-                    var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ' + row.browser;                
+                    //var title = '<b>' + n + '</b> ' + Math.round(progress * 100) + '%<br />' + '<span style="color:gray;">(' + t.getTime() + ')</span><br /> ' + row.browser;                
+                    var title = row.liferayUserInformation + ' <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
                     var browser = row.browser;
-                    if (n < 1) {
+                    if (n < 1 && c == 0) {
                         browser = 'empty';
                     }                    
                     packagesTable.addRow([
@@ -205,10 +216,13 @@
                     c += 1;
                     t = new Date(t.getTime() + second);
                 }
-                packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);                
+                packagesTable.addRow([n, packageFrom, packageTo, undefined, progress, 'delete', new Date(t), duration,'image',undefined]);
                 n++;
             });
         }
+        
+        packagesTable.addRow([n+1, 0, 0, undefined, 0, "create", new Date(), undefined,'image','${pageContext.request.contextPath}/img/empty.png']);
+        
         options = {
             height: '550px'        
             ,stabilize: true
@@ -220,7 +234,7 @@
                 }
             ,'common': {
                     'fontSize': 11
-                }           
+                }
             }
         };
         
@@ -237,7 +251,8 @@
     }
     
     function reloadAnalyticsData<portlet:namespace/>() {
-        if (network.slider != null && network.slider.value == network.slider.end) {
+        var selectedRange = jQuery('input:radio[name=<portlet:namespace/>range]:checked').val();        
+        if (network.slider != null && network.slider.value == network.slider.end && selectedRange == <%=TimelineRange.REAL_TIME.getId()%>) {            
             var newStartDate = new Date(startTime);
             var newEndDate   = new Date(endTime);
             var nowDate   = new Date();
