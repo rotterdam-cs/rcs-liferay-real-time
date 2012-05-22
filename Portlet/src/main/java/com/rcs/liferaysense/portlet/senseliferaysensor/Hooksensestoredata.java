@@ -28,7 +28,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- *
  * @author Prj.M@x <pablo.rendon@rotterdam-cs.com>
  */
 public class Hooksensestoredata extends Action {
@@ -56,8 +55,9 @@ public class Hooksensestoredata extends Action {
 
     protected void doRun (HttpServletRequest request, HttpServletResponse response) {
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        String fullURLRequest = PortalUtil.getCurrentCompleteURL(request);
         //Only store data for front end pages (Not control panel pages)
-        if (!themeDisplay.getLayout().isTypeControlPanel()) {
+        if (!themeDisplay.getLayout().isTypeControlPanel() && !fullURLRequest.contains("/c/") ) {
             HttpSession httpSession = request.getSession();            
 
             long groupId = themeDisplay.getScopeGroupId();
@@ -70,8 +70,7 @@ public class Hooksensestoredata extends Action {
             long previousPageId = 0;
             if (httpSession.getAttribute("pageId") != null) {
                 previousPageId = (Long) httpSession.getAttribute("pageId");    
-            }            
-            
+            }           
             
             // To avoid multiple calls of the same request
             boolean ftime = true;
@@ -86,7 +85,8 @@ public class Hooksensestoredata extends Action {
                 }
             }            
             if (ftime) {
-                log.info("liferay sense hook logger " + PortalUtil.getCurrentCompleteURL(request));                
+                
+                log.info("liferay sense hook logger " + fullURLRequest);                
                 httpSession.setAttribute("currentTime", new Date().getTime());                
                 httpSession.setAttribute("pageTitle", pageTitle);
                 httpSession.setAttribute("pageId", pageId);

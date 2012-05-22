@@ -190,10 +190,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
                 userInformation = userInformation.replaceAll("\\{img\\}", "<img src=\"" + contextPath + "/img/" + liferaySensorDataDTO.getBrowser() + ".png\">");
             } else {                
                 liferayUserId = Long.parseLong(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
-                log.error("***************************************************");
-                log.error(liferaySensorDataDTO.getIp());
-                log.error(liferaySensorDataDTO.getIp().replaceAll("[^\\d]", ""));
-                log.error("***************************************************");
+                liferaySensorDataDTO.setLiferayUserId(liferayUserId);
             }
             liferaySensorDataDTO.setLiferayUserInformation(userInformation);
             

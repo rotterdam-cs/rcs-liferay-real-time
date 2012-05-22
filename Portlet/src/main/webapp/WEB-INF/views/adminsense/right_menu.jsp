@@ -16,11 +16,13 @@
 <ul class="nav nav-list">                    
     <c:if test="${isSenseAdmin == true}" >
         <li class="divider"></li>
+    </c:if>
         <li>
             <a href="#<%=Constants.ADMIN_SECTION_ANALYTICS%>" data-toggle="tab" rel="sense-admin-menu-analytics">
                 <i class="icon-th-list"></i><fmt:message key="com.rcs.sense.admin.analytics"/>                            
             </a>
         </li>
+    <c:if test="${isSenseAdmin == true}" >
         <li>
             <a href="#<%=Constants.ADMIN_SECTION_GLOBAL_SETTINGS%>" data-toggle="tab" rel="sense-admin-menu-general-settings">
                 <i class="icon-share"></i><fmt:message key="com.rcs.sense.admin.global.settings"/>                           

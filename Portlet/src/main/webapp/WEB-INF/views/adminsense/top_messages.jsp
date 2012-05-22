@@ -12,12 +12,11 @@
 
 <fmt:setBundle basename="Language"/>
 <portlet:defineObjects />
-
-<div class="alert alert-block alert-error fade in" style="display: none;">
+<div class="alert alert-block alert-error fade in" <c:if test="${errorMessage == null}" >style="display: none;"</c:if>>
     <h4 class="alert-heading"><fmt:message key="com.rcs.sense.general.error.processing.data"/></h4>
     <p id="<portlet:namespace/>alert-content"><c:out value="${errorMessage}" escapeXml="false" /></p>
 </div>
-<div class="alert alert-success fade in" style="display: none;">
+<div class="alert alert-success fade in" <c:if test="${infoMessage == null}" >style="display: none;"</c:if>>
     <span id="<portlet:namespace/>info-content"><c:out value="${infoMessage}" escapeXml="false" /></span>
 </div>
 <script type="text/javascript">
@@ -25,7 +24,7 @@
         <c:if test="${errorMessage == null}" >
             jQuery(".alert-error").hide();
         </c:if>
-            <c:if test="${infoMessage == null}" >
+        <c:if test="${infoMessage == null}" >
             jQuery(".alert-success").hide();
         </c:if>
     });

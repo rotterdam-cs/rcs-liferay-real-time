@@ -101,8 +101,12 @@ public class AdminSenseController {
             //Account
             modelAttrs = admin_section_account(modelAttrs, liferayUserId, groupId, companyId);            
         } else if (section.equals(ADMIN_SECTION_ANALYTICS)) {            
-            //Analytics            
-            
+            //Analytics
+            if (!isSenseAdmin) {
+                String message = ResourceBundleHelper.getKeyLocalizedValue("com.rcs.sense.admin.error.not.authorized.section", locale);
+                modelAttrs.put("errorMessage", message);
+                return new ModelAndView("adminsense/" + ADMIN_SUBSECTION_TOP_MESSAGES, modelAttrs);
+            }            
         } else if (section.equals(ADMIN_SECTION_GLOBAL_SETTINGS)) {
             //if try to access the admin section and is not a Sense admin
             if (!isSenseAdmin) {
@@ -146,11 +150,6 @@ public class AdminSenseController {
         Date fromDate = TimelineRange.get(range);        
         Date toDate = new Date();
         
-        
-        log.error("getAnalyticsBigRange");
-        log.error("(" + fromDate.getTime() + ")" + fromDate + " to (" + toDate.getTime() + ")" +  toDate);
-        
-        
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
         CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
@@ -190,10 +189,7 @@ public class AdminSenseController {
            
         Date fromDate = TimelineRange.get(range);        
         Date toDate = new Date();
-        
-        log.error("getAnalyticsBigRangeJSON");
-        log.error("(" + fromDate.getTime() + ")" + fromDate + " to (" + toDate.getTime() + ")" +  toDate);
-        
+                
         List <LiferaySensorDataDTO> liferaySensorsData = new ArrayList<LiferaySensorDataDTO>();
         CommonSenseSession commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);
         ServiceActionResult<SenseConfiguration> serviceActionResult = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
