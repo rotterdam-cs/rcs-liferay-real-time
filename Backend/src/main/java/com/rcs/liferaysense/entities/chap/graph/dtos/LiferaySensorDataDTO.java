@@ -83,18 +83,19 @@ public class LiferaySensorDataDTO implements Serializable {
     }
 
     public void setBrowser(String userAgent) {
-        if (userAgent.indexOf("Chrome") > -1) {
-            this.browser = "chrome";
-        } else if (userAgent.indexOf("Firefox") > -1) {
-            this.browser = "firefox";
-        } else if (userAgent.indexOf("MSIE") > -1) {
-            this.browser = "msie";
-        } else if (userAgent.indexOf("Mobile") > -1) {
-            this.browser = "mobile";
-        } else if (userAgent.indexOf("Safari") > -1) {
-            this.browser = "safari";
-        } else {
-            this.browser = "other";
+        this.browser = "other";
+        if (userAgent != null) {
+            if (userAgent.indexOf("Chrome") > -1) {
+                this.browser = "chrome";
+            } else if (userAgent.indexOf("Firefox") > -1) {
+                this.browser = "firefox";
+            } else if (userAgent.indexOf("MSIE") > -1) {
+                this.browser = "msie";
+            } else if (userAgent.indexOf("Mobile") > -1) {
+                this.browser = "mobile";
+            } else if (userAgent.indexOf("Safari") > -1) {
+                this.browser = "safari";
+            }
         }
     }
 

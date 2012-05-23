@@ -26,7 +26,7 @@
         <footer-portlet-javascript>/js/responseHandler.js</footer-portlet-javascript>
         <footer-portlet-javascript>/js/jquery-ui-1.8.16.custom-redmond/js/jquery-ui-1.8.16.custom.min.js</footer-portlet-javascript>
         <footer-portlet-javascript>/js/fancyapps-fancyBox/source/jquery.fancybox.pack.js</footer-portlet-javascript>        
-        <footer-portlet-javascript>/js/chap/network/network.js</footer-portlet-javascript>
+        <footer-portlet-javascript>/js/chap/network/networkRdam.js</footer-portlet-javascript>
         <footer-portlet-javascript>/js/chap/timeline/timeline-min.js</footer-portlet-javascript>
         <footer-portlet-javascript>/js/jquery.json-2.3/jquery.json-2.3.min.js</footer-portlet-javascript>   
     </portlet>
