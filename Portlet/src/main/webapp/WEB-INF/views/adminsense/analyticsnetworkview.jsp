@@ -24,7 +24,7 @@
     var second;
 //    var selectedPackages = [];
 
-    function drawVisualization<portlet:namespace/>(pages, sensordata, stepSeconds, tmpSliderValue) {
+    function drawVisualization<portlet:namespace/>(pages, sensordata, stepSeconds, tmpSliderValue, currentZoomLevel, currentTranslation) {
         nodesTable = new google.visualization.DataTable();
         nodesTable.addColumn('number', 'id');
         nodesTable.addColumn('string', 'text');
@@ -161,7 +161,7 @@
                 while (c < stepCount + 1) {
                     var progress = c / stepCount;
                     var action = 'create';
-                    var title = '${row.liferayUserInformation} <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
+                    var title = '${row.liferayUserInformation} <br /> <span style="color:gray;">(' + recorederedTime + ')<br />${row.userAgent}</span>';
                     packagesTable.addRow([
                          n
                         ,packageFrom
@@ -196,7 +196,7 @@
                     //var isselected = (selectedPackages.indexOf(uid) != -1) ? true : false;
                     var progress = c / stepCount;
                     var action = 'create';                    
-                    var title = row.liferayUserInformation + ' <br /> <span style="color:gray;">(' + recorederedTime + ')</span>';
+                    var title = row.liferayUserInformation + ' <br /> <span style="color:gray;">(' + recorederedTime + ')<br />' + row.userAgent + '</span>';
                     var browser = row.browser;
                     if (n < 1 && c == 0) { browser = 'empty'; }                    
                     packagesTable.addRow([
@@ -238,7 +238,13 @@
         };
         
         network = new links.Network(document.getElementById('<portlet:namespace/>mynetwork'));
-        network.draw(nodesTable, linksTable, packagesTable, options);
+        network.draw(nodesTable, linksTable, packagesTable, options);               
+        if (currentZoomLevel != null){
+            network.scale = currentZoomLevel;
+        }
+        if (currentTranslation != null) {
+            network._setTranslation(currentTranslation.x,currentTranslation.y);
+        } 
         setTimeout("startAnimation<portlet:namespace/>(" + tmpSliderValue + ")", 1000);
 //        links.Network.removeEventListener(document, "mouseup", sincronyzeSelection);
 //        links.Network.addEventListener(document, "mouseup", sincronyzeSelection);
@@ -257,7 +263,7 @@
     
     function reloadAnalyticsData<portlet:namespace/>() {
         var selectedRange = jQuery('input:radio[name=<portlet:namespace/>range]:checked').val();        
-        if (network.slider != null && network.slider.value == network.slider.end && selectedRange == <%=TimelineRange.REAL_TIME.getId()%>) {            
+        if (network.slider != null && network.slider.value == network.slider.end && selectedRange == <%=TimelineRange.REAL_TIME.getId()%> && !network.isMoving()) {            
             var newStartDate = new Date(startTime);
             var newEndDate   = new Date(endTime);
             var nowDate   = new Date();
@@ -269,7 +275,11 @@
                 ,function(returned_data) {
                     rows = jQuery.parseJSON(returned_data);
 //                    sincronyzeSelection();
-                    drawVisualization<portlet:namespace/>(rows.pages, rows.liferaySensorsData, rows.stepSeconds, network.slider.value);
+                    var currentSliderPosition = network.slider.value;
+                    var currentZoomLevel = network.scale;
+                    var currentTranslation = network._getTranslation();
+                    
+                    drawVisualization<portlet:namespace/>(rows.pages, rows.liferaySensorsData, rows.stepSeconds, currentSliderPosition, currentZoomLevel, currentTranslation);
                     reloadTimeline<portlet:namespace/>();
                 }
             );

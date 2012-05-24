@@ -60,8 +60,8 @@
 
 <p></p>
 <div id="<portlet:namespace/>containermask" class="sense-graphic-container">
-    <div id="<portlet:namespace/>mytimelinecontainer"></div>
-    <div id="<portlet:namespace/>mynetworkcontainer"></div>
+    <div id="<portlet:namespace/>mytimelinecontainer" style="float: left;" ></div>
+    <div id="<portlet:namespace/>mynetworkcontainer" style="float: left;"></div>
 </div>
 
 <script type="text/javascript">

@@ -12,7 +12,7 @@ public enum TimelineRange {
             Calendar gc;
             gc = GregorianCalendar.getInstance();
             gc.setTime(new Date());
-            gc.add(Calendar.MINUTE, -15);
+            gc.add(Calendar.MINUTE, -30);
             return gc.getTime();
         }
     },

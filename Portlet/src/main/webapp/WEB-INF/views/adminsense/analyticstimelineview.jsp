@@ -72,6 +72,8 @@
     }  
     
     function reloadTimeline<portlet:namespace/>() {
+        var currentHeight = jQuery("#<portlet:namespace/>mytimeline .timeline-frame").height();
+        jQuery("#<portlet:namespace/>mytimeline").css("min-height", currentHeight + "px");
         jQuery.get("${getAnalyticsBigRangeJSONURL}"
             ,{
                 "range" : jQuery('input:radio[name=<portlet:namespace/>range]:checked').val()

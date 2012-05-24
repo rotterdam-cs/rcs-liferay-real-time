@@ -20,6 +20,7 @@ public class LiferaySensorDataDTO implements Serializable {
     private String liferayUserInformation;
     private int pageCounter;
     private long liferayUserId;
+    private String userAgent;
     
     public String getIp() {
         return ip;
@@ -85,6 +86,7 @@ public class LiferaySensorDataDTO implements Serializable {
     public void setBrowser(String userAgent) {
         this.browser = "other";
         if (userAgent != null) {
+            setUserAgent(userAgent);
             if (userAgent.indexOf("Chrome") > -1) {
                 this.browser = "chrome";
             } else if (userAgent.indexOf("Firefox") > -1) {
@@ -121,6 +123,14 @@ public class LiferaySensorDataDTO implements Serializable {
 
     public void setLiferayUserId(long liferayUserId) {
         this.liferayUserId = liferayUserId;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
     
 }
