@@ -69,8 +69,8 @@ div.timeline-event-range {
 }
 
 div.timeline-event-line {
-  border-left-width: 1px;
-  border-left-style: solid;
+/*  border-left-width: 1px;
+  border-left-style: solid;*/
 } 
 
 div.timeline-event-content {

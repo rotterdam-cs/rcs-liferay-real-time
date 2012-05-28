@@ -47,7 +47,13 @@
             });
         }
 
-        var options = {"style": "box"};
+        var options = {
+             "style": "box"
+            ,"editable":false
+            ,"selecteable":false
+            ,"animate":false
+            ,"animateZoom":false
+        };
 
         timeline = new links.Timeline(document.getElementById('<portlet:namespace/>mytimeline'));
         

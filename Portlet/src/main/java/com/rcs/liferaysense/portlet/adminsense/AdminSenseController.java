@@ -548,6 +548,10 @@ public class AdminSenseController {
             liferaySensorsData = commonSenseService.getSensorDataDTO(commonSenseSession, liferaySensorId, fromDate, toDate, pages, groupId, companyId, locale, contextPath);
         }
         modelAttrs.put("pages", pages);
+        //This limit is because the network graph library doesn't works with many nodes
+        if (liferaySensorsData.size() > MAX_LIMIT_RETREIVE_NODES) {
+            liferaySensorsData = liferaySensorsData.subList(liferaySensorsData.size()-500, liferaySensorsData.size());
+        }
         modelAttrs.put("liferaySensorsData", liferaySensorsData);
         return modelAttrs;
     }

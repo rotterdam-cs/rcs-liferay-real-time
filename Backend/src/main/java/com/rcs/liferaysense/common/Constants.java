@@ -47,4 +47,5 @@ public interface Constants {
     public static final int NETWORKMAP_ZOOM_ADJUST_FACTOR = 750;
     public static final int DEFAULT_TIME_TO_KEEP_ALIVE_PAGE_NAVIGATION = 5; //Minutes
     public static final int DEFAULT_NETWORKMAP_AUTORELOAD_TIME = 60; //Seconds
+    public static final int MAX_LIMIT_RETREIVE_NODES = 500; //This limit is because the network graph library doesn't works with many nodes
 }

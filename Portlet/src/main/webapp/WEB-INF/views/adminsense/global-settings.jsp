@@ -29,6 +29,7 @@
         --%>
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings4"/></p>
         <p><fmt:message key="com.rcs.sense.admin.help.global.settings5"/></p>
+        <p><fmt:message key="com.rcs.sense.admin.help.global.settings6"/></p>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal"><fmt:message key="com.rcs.sense.general.close"/></a>
@@ -47,7 +48,7 @@
     </p>
     --%>
     <p>
-        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>"><fmt:message key="com.rcs.sense.general.default.username"/>:</label>
+        <label for="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>"><fmt:message key="com.rcs.sense.general.default.username"/>: <a data-toggle="modal" href="#<portlet:namespace/>helpWindow"><i class="icon-question-sign"></i></a></label>
         <input type="text" name="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>" class="required span3" id="<portlet:namespace/><%=Constants.ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME%>" value="${default_sense_username}" />
     </p>    
     
