@@ -43,7 +43,7 @@ public class Hooksensestoredata extends Action {
     @Override
     public void run(HttpServletRequest request, HttpServletResponse response) {
         ServletContext servletContext = request.getSession().getServletContext();
-        servletContext = servletContext.getContext("/liferaysensePortlet");
+        servletContext = servletContext.getContext("/rcs-liferay-real-time-portlet");
         WebApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
         springContext.getAutowireCapableBeanFactory().autowireBean(this);           
         try {
