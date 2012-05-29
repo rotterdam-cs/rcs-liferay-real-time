@@ -258,6 +258,5 @@
     <module>Portlet</module>
     <module>Theme</module>
     <module>Hook</module>
-    <module>UpgradeProcess</module>
   </modules>
 </project>

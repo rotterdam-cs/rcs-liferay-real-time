@@ -8,8 +8,8 @@
 >
     
     <portlet>
-        <portlet-name>AdminSensePortlet</portlet-name>
-        <display-name>Sense Administration</display-name>
+        <portlet-name>RealTimePortlet</portlet-name>
+        <display-name>Liferay Real Time</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
         <expiration-cache>0</expiration-cache>
         <supports>
@@ -17,9 +17,9 @@
         </supports>
                 <!--<resource-bundle>Language</resource-bundle> -->
         <portlet-info>
-            <title>Sense Analytics</title>
-            <short-title>Sense Analytics</short-title>
-            <keywords>administration analytics sense portlet</keywords>
+            <title>Liferay Real Time</title>
+            <short-title>Liferay Real Time</short-title>
+            <keywords>Liferay real time analytics sense portlet</keywords>
         </portlet-info>
         <security-role-ref>
             <role-name>administrator</role-name>

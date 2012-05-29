@@ -3,7 +3,7 @@
 
 <liferay-portlet-app>
     <portlet>
-        <portlet-name>AdminSensePortlet</portlet-name>
+        <portlet-name>RealTimePortlet</portlet-name>
         <icon>/icon.png</icon>
         <control-panel-entry-category>content</control-panel-entry-category>            
         <control-panel-entry-weight>1</control-panel-entry-weight>
