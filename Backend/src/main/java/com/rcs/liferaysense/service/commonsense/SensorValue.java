@@ -11,7 +11,7 @@ public class SensorValue implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    private int id;
+    private String id;
     private int sensorId;
     private String value;
     private double date;
@@ -22,13 +22,23 @@ public class SensorValue implements Serializable {
     public SensorValue() {
     }
     
-    public int getId() {
+//    public int getId() {
+//        return id;
+//    }
+//
+//    public void setId(int id) {
+//        this.id = id;
+//    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
+    
+    
 
     public int getMonth() {
         return month;
@@ -114,11 +124,11 @@ public class SensorValue implements Serializable {
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 89 * hash + this.id;
-        return hash;
-    }
+//    @Override
+//    public int hashCode() {
+//        int hash = 5;
+//        hash = 89 * hash + this.id;
+//        return hash;
+//    }
     
 }
