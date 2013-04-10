@@ -256,15 +256,22 @@ public class Utils {
      * @return 
      */
     public CommonSenseSession getDefaultUserCommonSenseSession (long groupId, long companyId) throws SystemException, PortalException {
-        CommonSenseSession commonAdminSenseSession = null;
-        ServiceActionResult<SenseConfiguration> serviceActionResultPassword = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD);
-        if (serviceActionResultPassword.isSuccess()) {
-            ServiceActionResult<SenseConfiguration> serviceActionResultUsername = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME);
-            if (serviceActionResultUsername.isSuccess()) {
-                commonAdminSenseSession = commonSenseService.login(serviceActionResultUsername.getPayload().getPropertyValue(), serviceActionResultPassword.getPayload().getPropertyValue());
+        try {
+            CommonSenseSession commonAdminSenseSession = null;
+            ServiceActionResult<SenseConfiguration> serviceActionResultPassword = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_PASSWORD);
+            if (serviceActionResultPassword.isSuccess()) {
+                ServiceActionResult<SenseConfiguration> serviceActionResultUsername = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_USERNAME);
+                if (serviceActionResultUsername.isSuccess()) {
+                    commonAdminSenseSession = commonSenseService.login(serviceActionResultUsername.getPayload().getPropertyValue(), serviceActionResultPassword.getPayload().getPropertyValue());
+                }
             }
-        }        
-        return commonAdminSenseSession;
+            Thread.sleep(10000);
+            return commonAdminSenseSession;            
+
+        } catch (InterruptedException e) {
+            return null;
+        }
+        
     }
 
     

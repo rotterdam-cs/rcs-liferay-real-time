@@ -19,7 +19,7 @@ public interface CommonSenseService {
      * @param username
      * @param password the password will be hashed using the MD5 algorithm.
      * @return a common sense session or null if the login fails.
-     */
+     */    
     CommonSenseSession login(String username, String password);
     
     
@@ -117,7 +117,8 @@ public interface CommonSenseService {
      * @param value
      * @return 
      */
-    LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
+    //LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
+    void addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
     
     
     /**

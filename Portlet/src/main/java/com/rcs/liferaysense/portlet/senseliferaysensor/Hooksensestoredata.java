@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -52,12 +53,15 @@ public class Hooksensestoredata extends Action {
             log.error(e.getMessage() + " - " + e);
         }
     }
-
+    
+    
     protected void doRun (HttpServletRequest request, HttpServletResponse response) {
+        log.info("Starting Hook to store info in sense..........................................");
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         String fullURLRequest = PortalUtil.getCurrentCompleteURL(request);
         //Only store data for front end pages (Not control panel pages)
         if (!themeDisplay.getLayout().isTypeControlPanel() && !fullURLRequest.contains("/c/") ) {
+            log.info("Starting Hook to store info in sense..........................................2");
             HttpSession httpSession = request.getSession();            
 
             long groupId = themeDisplay.getScopeGroupId();
@@ -85,7 +89,7 @@ public class Hooksensestoredata extends Action {
                 }
             }            
             if (ftime) {
-                
+                log.info("Starting Hook to store info in sense..........................................3");
                 log.info("liferay sense hook logger " + fullURLRequest);                
                 httpSession.setAttribute("currentTime", new Date().getTime());                
                 httpSession.setAttribute("pageTitle", pageTitle);
@@ -93,9 +97,12 @@ public class Hooksensestoredata extends Action {
                 String userAgent = request.getHeader("User-Agent");
                 String userIP = request.getRemoteAddr();
                 CommonSenseSession commonSenseSession = null;
-                try {                
-                    commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);                
+                try {       
+                    log.info("Starting Hook to store info in sense..........................................4");
+                    commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);   
+                    log.info("Starting Hook to store info in sense..........................................5");
                     if (commonSenseSession != null) {
+                        log.info("Starting Hook to store info in sense..........................................6");
                         long liferayUserId = 0;
                         if (themeDisplay.isSignedIn()) {
                             liferayUserId = utils.getUserId(request);
@@ -110,8 +117,10 @@ public class Hooksensestoredata extends Action {
                         liferaySensorData.setLiferayUserId(liferayUserId);
                         ServiceActionResult<SenseConfiguration> serviceActionResultLiferaySensorData = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
                         if (serviceActionResultLiferaySensorData.isSuccess()) {
-                            String liferaySensorId = serviceActionResultLiferaySensorData.getPayload().getPropertyValue(); 
-                            commonSenseService.addLiferaySensorData(commonSenseSession, liferaySensorId, liferaySensorData);                    
+                            log.info("Starting Hook to store info in sense..........................................7");
+                            String liferaySensorId = serviceActionResultLiferaySensorData.getPayload().getPropertyValue();
+                            commonSenseService.addLiferaySensorData(commonSenseSession, liferaySensorId, liferaySensorData);    
+                            log.info("Starting Hook to store info in sense..........................................8");
                         }                       
 //                        //Store ClientLocation Data
 //                        Gson gson = new Gson();
@@ -132,6 +141,7 @@ public class Hooksensestoredata extends Action {
                 }
             }
         }
+        log.info("End Hook to store info in sense..........................................");
     }
        
 }

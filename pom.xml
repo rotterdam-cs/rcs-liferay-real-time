@@ -135,6 +135,11 @@
                 <artifactId>spring-orm</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+<!--            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.0.1</version>
+            </dependency>-->
         <!-- HIBERNATE -->
             <dependency>
                 <groupId>org.hibernate</groupId>

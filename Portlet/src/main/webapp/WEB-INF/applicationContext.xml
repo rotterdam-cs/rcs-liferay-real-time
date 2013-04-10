@@ -8,7 +8,8 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context-3.0.xsd
                            http://www.springframework.org/schema/task
-                           http://www.springframework.org/schema/task/spring-task.xsd">
+                           http://www.springframework.org/schema/task/spring-task-3.0.xsd
+">                        
     <!-- enable annotation configuration -->
     <context:annotation-config />
     
@@ -21,9 +22,8 @@
     <context:component-scan base-package="com.rcs.liferaysense.portlet.common" />
     
         
-    <!-- get access to the rest webservice -->
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
-      
+    <!-- get access to the rest webservice -->    
+     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
       
     <!-- configure the usage of hibernate validator -->
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
@@ -53,10 +53,12 @@
     <!-- for the async processing -->
     <task:executor id="taskExecutor"
         pool-size="5-25"
-        queue-capacity="100"/>
+        queue-capacity="100"        
+    />
     
     <!-- make work and @Async methods  -->
     <!-- to schedule jobs, please use the liferay mechanism -->
     <task:annotation-driven executor="taskExecutor"/>
+    
     
 </beans>

@@ -22,21 +22,26 @@ import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import org.apache.http.params.CoreConnectionPNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+//import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 /**
  * Implementation of the common sense service. This uses the spring framework
  * REST client to communicate with the common sense API.
  * @author juan
  */
-@Service
+@Component
 class CommonSenseServiceImpl implements CommonSenseService {
     private static Log log = LogFactoryUtil.getLog(CommonSenseServiceImpl.class);
 
@@ -73,7 +78,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
      */
     @PostConstruct
     private void init() {
-        template.setErrorHandler(new CommonSenseErrorHandler());
+        template.setErrorHandler(new CommonSenseErrorHandler());        
     }
  
     /**
@@ -332,6 +337,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
+    @Async
     public CommonSenseSession login(String username, String password) {        
         String token = doLogin(username, password);
         if (token == null) {
@@ -518,16 +524,28 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
-    public LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorIdStr, LiferaySensorData liferaySensorData) {        
+    @Async
+    public void addLiferaySensorData(CommonSenseSession session, String sensorIdStr, LiferaySensorData liferaySensorData) {        
+        
+        logger.error(" 11111111111111111111111111111  ");
+        
+        try {
+            Thread.sleep(5000);
+            logger.error("333333333333333333333");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
         Set<ConstraintViolation<LiferaySensorData>> violations = validator.validate(liferaySensorData);       
         LocalResponse result = new LocalResponse();
         if (!violations.isEmpty()) {
-            return result;
+            logger.error("Violation");
+            //return result;
         }
         Map<String, String> parameters = buildSessionParameters(session);        
         if (parameters == null) {
             logger.error("parameteres NULL");
-            return null;
+            //return null;
         }
         Gson gson = new Gson();
         parameters.put("sensorId", sensorIdStr);
@@ -538,7 +556,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
             HttpStatus code = entity.getStatusCode();
             result.setResponseCode(code.value());
             result.setBody(entity.getBody());
-            
+
             if (code != HttpStatus.CREATED) {                
                 ResponseErrorMessage responseErrorMessage = CommonSenseObjectMapper.mapMessage(entity.getBody());
                 result.setMessage(responseErrorMessage.getError());
@@ -548,12 +566,14 @@ class CommonSenseServiceImpl implements CommonSenseService {
             } else {
                 result.setSuccess(true);
             }
-        
+
         //todo-remove this when the header issue is fixed.
         } catch (IllegalArgumentException ex) {
             logger.error("Illegal argument while calling the web service", ex);
         }
-        return result;
+        logger.error("2222222222222222222222222222222222222222");
+
+        //return result;
     }
     
     
