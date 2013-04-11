@@ -7,6 +7,7 @@ import com.rcs.liferaysense.entities.dtos.PagesDto;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * Implements common sense API calls.
@@ -19,7 +20,7 @@ public interface CommonSenseService {
      * @param username
      * @param password the password will be hashed using the MD5 algorithm.
      * @return a common sense session or null if the login fails.
-     */    
+     */
     CommonSenseSession login(String username, String password);
     
     
@@ -118,8 +119,10 @@ public interface CommonSenseService {
      * @return 
      */
     //LocalResponse addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
+    @Async
     void addLiferaySensorData(CommonSenseSession session, String sensorId, LiferaySensorData value);
-    
+    @Async
+    void addLiferaySensorData(String username, String password, String sensorIdStr, LiferaySensorData liferaySensorData);
     
     /**
      * 

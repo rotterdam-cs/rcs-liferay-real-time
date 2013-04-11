@@ -18,7 +18,16 @@ import com.rcs.liferaysense.entities.dtos.LocalResponse;
 import com.rcs.liferaysense.entities.dtos.PagesDto;
 import com.rcs.liferaysense.entities.dtos.ResponseErrorMessage;
 import com.rcs.liferaysense.service.local.SenseConfigurationService;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -285,15 +294,18 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     String doLogin(String username, String hashedPassword) {
-
+        log.info("do Login1");        
+        
         // build the parameter map.
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("username", username);
         parameters.put("password", hashedPassword);
 
         // get the response entity, useful for checking the http status of the response.
+        log.info("do Login 2");
+           
         ResponseEntity<String> entity = template.postForEntity(SERVICE_URL + LOGIN_ENDPOINT, null, String.class, parameters);
-        
+        log.info("do Login 3");
         //if the status is 403, then answer null.
         if (entity.getStatusCode() == HttpStatus.FORBIDDEN) {
             return null;
@@ -302,7 +314,8 @@ class CommonSenseServiceImpl implements CommonSenseService {
         //get the access token that is on the body of the result.
         String result = entity.getBody();
         //parse the access token.
-        return CommonSenseObjectMapper.getAuthTokenResponse(result);
+        log.info("finish Login");
+        return CommonSenseObjectMapper.getAuthTokenResponse(result);        
     }
 
     /**
@@ -337,9 +350,11 @@ class CommonSenseServiceImpl implements CommonSenseService {
      * @return 
      */
     @Override
-    @Async
-    public CommonSenseSession login(String username, String password) {        
-        String token = doLogin(username, password);
+    public CommonSenseSession login(String username, String password) { 
+        log.info("Login in Sense with " + username);        
+        String token = null;        
+              
+        token = doLogin(username, password);
         if (token == null) {
             log.error("Can't login in SENSE " + username + " - " + password);
             return null;
@@ -526,16 +541,7 @@ class CommonSenseServiceImpl implements CommonSenseService {
     @Override
     @Async
     public void addLiferaySensorData(CommonSenseSession session, String sensorIdStr, LiferaySensorData liferaySensorData) {        
-        
-        logger.error(" 11111111111111111111111111111  ");
-        
-        try {
-            Thread.sleep(5000);
-            logger.error("333333333333333333333");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        
+        logger.info("addLiferaySensorData 1");
         Set<ConstraintViolation<LiferaySensorData>> violations = validator.validate(liferaySensorData);       
         LocalResponse result = new LocalResponse();
         if (!violations.isEmpty()) {
@@ -571,8 +577,51 @@ class CommonSenseServiceImpl implements CommonSenseService {
         } catch (IllegalArgumentException ex) {
             logger.error("Illegal argument while calling the web service", ex);
         }
-        logger.error("2222222222222222222222222222222222222222");
+        logger.info("addLiferaySensorData 2");
+        //return result;
+    }
+    
+    @Override
+    @Async
+    public void addLiferaySensorData(String username, String password, String sensorIdStr, LiferaySensorData liferaySensorData) {        
+        CommonSenseSession session = login(username, password);
+        logger.info("addLiferaySensorData 1");
+        Set<ConstraintViolation<LiferaySensorData>> violations = validator.validate(liferaySensorData);       
+        LocalResponse result = new LocalResponse();
+        if (!violations.isEmpty()) {
+            logger.error("Violation");
+            //return result;
+        }
+        Map<String, String> parameters = buildSessionParameters(session);        
+        if (parameters == null) {
+            logger.error("parameteres NULL");
+            //return null;
+        }
+        Gson gson = new Gson();
+        parameters.put("sensorId", sensorIdStr);
+        String jsonValue = gson.toJson(liferaySensorData, LiferaySensorData.class);
+        parameters.put("value", jsonValue);
+        try {
+            ResponseEntity<String> entity = template.postForEntity(SERVICE_URL + LOG_LIFERAY_SENSOR_DATA_ENDPOINT, null, String.class, parameters);            
+            HttpStatus code = entity.getStatusCode();
+            result.setResponseCode(code.value());
+            result.setBody(entity.getBody());
 
+            if (code != HttpStatus.CREATED) {                
+                ResponseErrorMessage responseErrorMessage = CommonSenseObjectMapper.mapMessage(entity.getBody());
+                result.setMessage(responseErrorMessage.getError());
+                logger.error("code: " +code);
+                logger.error("entity.getBody(): " + entity.getBody());
+                logger.warn("Could not create datapoint on the common sense service");
+            } else {
+                result.setSuccess(true);
+            }
+
+        //todo-remove this when the header issue is fixed.
+        } catch (IllegalArgumentException ex) {
+            logger.error("Illegal argument while calling the web service", ex);
+        }
+        logger.info("addLiferaySensorData 2");
         //return result;
     }
     
