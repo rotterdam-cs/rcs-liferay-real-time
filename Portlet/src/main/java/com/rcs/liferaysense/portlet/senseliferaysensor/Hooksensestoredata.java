@@ -56,12 +56,12 @@ public class Hooksensestoredata extends Action {
     
     
     protected void doRun (HttpServletRequest request, HttpServletResponse response) {
-        log.info("Starting Hook to store info in sense..........................................");
+        log.info("Starting Hook to store info in sense");
         ThemeDisplay themeDisplay= (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         String fullURLRequest = PortalUtil.getCurrentCompleteURL(request);
         //Only store data for front end pages (Not control panel pages)
         if (!themeDisplay.getLayout().isTypeControlPanel() && !fullURLRequest.contains("/c/") ) {
-            log.info("Starting Hook to store info in sense..........................................2");
+            
             HttpSession httpSession = request.getSession();            
 
             long groupId = themeDisplay.getScopeGroupId();
@@ -89,20 +89,17 @@ public class Hooksensestoredata extends Action {
                 }
             }            
             if (ftime) {
-                log.info("Starting Hook to store info in sense..........................................3");
+                log.info("first time storing info in sense");
                 log.info("liferay sense hook logger " + fullURLRequest);                
                 httpSession.setAttribute("currentTime", new Date().getTime());                
                 httpSession.setAttribute("pageTitle", pageTitle);
                 httpSession.setAttribute("pageId", pageId);
                 String userAgent = request.getHeader("User-Agent");
                 String userIP = request.getRemoteAddr();
-                CommonSenseSession commonSenseSession = null;
-                try {       
-                    log.info("Starting Hook to store info in sense..........................................4");
-                    commonSenseSession = utils.getDefaultUserCommonSenseSession(groupId, companyId);   
-                    log.info("Starting Hook to store info in sense..........................................5");
-                    if (commonSenseSession != null) {
-                        log.info("Starting Hook to store info in sense..........................................6");
+                try {
+                    String pass = utils.getDefaultPassCommonSense(groupId, companyId);
+                    String user = utils.getDefaultUserCommonSense(groupId, companyId);
+                    if (pass != null && user != null) {
                         long liferayUserId = 0;
                         if (themeDisplay.isSignedIn()) {
                             liferayUserId = utils.getUserId(request);
@@ -117,10 +114,10 @@ public class Hooksensestoredata extends Action {
                         liferaySensorData.setLiferayUserId(liferayUserId);
                         ServiceActionResult<SenseConfiguration> serviceActionResultLiferaySensorData = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_LIFERAYSENSORDATA_ID);
                         if (serviceActionResultLiferaySensorData.isSuccess()) {
-                            log.info("Starting Hook to store info in sense..........................................7");
+                            log.info("storing info in sense.......");
                             String liferaySensorId = serviceActionResultLiferaySensorData.getPayload().getPropertyValue();
-                            commonSenseService.addLiferaySensorData(commonSenseSession, liferaySensorId, liferaySensorData);    
-                            log.info("Starting Hook to store info in sense..........................................8");
+                            commonSenseService.addLiferaySensorData(user, pass, liferaySensorId, liferaySensorData);    
+                            log.info("finishing - storing info in sense.......");
                         }                       
 //                        //Store ClientLocation Data
 //                        Gson gson = new Gson();
@@ -129,10 +126,10 @@ public class Hooksensestoredata extends Action {
 //                        ServiceActionResult<SenseConfiguration> serviceActionResultClientlocationSensor = senseConfigurationService.findByProperty(groupId, companyId, ADMIN_CONFIGURATION_DEFAULT_SENSE_CLIENTLOCATIONSENSOR_ID);
 //                        if (serviceActionResultClientlocationSensor.isSuccess()) {
 //                            String clientLocationSensorId = serviceActionResultClientlocationSensor.getPayload().getPropertyValue();  
-//                            commonSenseService.addClientLocationData(commonSenseSession, clientLocationSensorId, clientLocation);
+//                            commonSenseService.addClientLocationData(user, pass, clientLocationSensorId, clientLocation);
 //                        }
                     } else {
-                        log.error("commonSense Session null");
+                        log.error("commonSense User or Pass Null");
                     }            
                 } catch(PortalException e) {
                     log.error("No CommonSense Session: " + e);
@@ -141,7 +138,7 @@ public class Hooksensestoredata extends Action {
                 }
             }
         }
-        log.info("End Hook to store info in sense..........................................");
+        log.info("End Hook to store info in sense");
     }
        
 }
